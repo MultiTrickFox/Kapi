@@ -1,11 +1,18 @@
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 // 2DO: compile as .jar
 
 class K_neural {
-  
+
+
     K_base base = new K_base();
+
+    int hm_cores = Runtime.getRuntime().availableProcessors();
+    ExecutorService pool = Executors.newFixedThreadPool(hm_cpu);
 
     static Object make_model(String model_type, int in_size, ArrayList<Integer> hidden_sizes, int out_size) {
 
@@ -25,14 +32,61 @@ class K_neural {
         // todo : do.
 
     }
+
+    private class R implements Callable<GRU, ArrayList<Double[][]>>{
+
+        GRU model;
+        ArrayList<Double[][]> sequence;
+
+        R(model,  sequence) {
+
+            this.model = model;
+            this.sequence = sequence;
+
+        }
+
+        ArrayList<Double[][]> call() {
+
+            return model.respond_to(sequence);
+
+        }
+
+    }
+
+    static ArrayList<ArrayList<Double[][]>> batch_response(GRU model, ArrayList<ArrayList<Double[][]>> batch) {
+
+        int batch_size = batch.size();
+
+        Future<ArrayList<Double[][]>>[] promises = new Future[batch_size];
+
+        ctr = -1;
+        for (ArrayList<Double[][]> data : batch) {
+            ctr++;
+
+            // runs[ctr] = new R(model, data);
+            // pool.execute(runs[ctr]);
+            // pool.execute(new R(model, data));
+            promises[ctr] = pool.submit(new R(model, data));
+
+        }
+
+        ArrayList<Double[][]>[] responses = new ArrayList<Double[][]>[batch_size];
+
+        for (int i = 0; i < batch_size; i++)
+
+            responses[i] = promises.get(i).get();
+
+        return responses;
+
+    }
     
 }
 
 class GRU {
 
 
-    ArrayList<ArrayList<Double[][]>> layers = new ArrayList();
-    ArrayList<Double[][]> states = new ArrayList();
+    private ArrayList<ArrayList<Double[][]>> layers = new ArrayList();
+    private ArrayList<Double[][]> states = new ArrayList();
 
 
     GRU(int in_size, ArrayList<Integer> hidden_sizes, int out_size) {
@@ -68,7 +122,7 @@ class GRU {
 
     }
 
-    zero_states() {
+    private zero_states() {
 
         int ctr = -1;
         for (ArrayList<Double[][]> layer : layers) {
@@ -82,7 +136,7 @@ class GRU {
 
     }
 
-    Double[][] propogate_layer(ArrayList<Double[][]> layer, Double[][] in, int layer_ctr) {
+    private Double[][] propogate_layer(ArrayList<Double[][]> layer, Double[][] in, int layer_ctr) {
 
         state  = states.get(layer_ctr);
         focus  = base.sigm(base.add(base.matmul(in,layer.get(0)),base.matmul(state,layer.get(1))));
@@ -96,7 +150,7 @@ class GRU {
 
     }
 
-    Double[][] propogate_model(Double[][] in) {
+    private Double[][] propogate_model(Double[][] in) {
 
 
         int ctr = -1;
@@ -130,8 +184,8 @@ class GRU {
 class LSTM {
 
 
-    ArrayList<ArrayList<Double[][]>> layers = new ArrayList();
-    ArrayList<Double[][]> states = new ArrayList();
+    private ArrayList<ArrayList<Double[][]>> layers = new ArrayList();
+    private ArrayList<Double[][]> states = new ArrayList();
 
 
     LSTM(int in_size, ArrayList<Integer> hidden_sizes, int out_size) {
@@ -172,7 +226,7 @@ class LSTM {
 
     }
 
-    zero_states() {
+    private zero_states() {
 
         int ctr = -1;
         for (ArrayList<Double[][]> layer : layers) {
@@ -186,7 +240,7 @@ class LSTM {
 
     }
 
-    Double[][] propogate_layer(ArrayList<Double[][]> layer, Double[][] in, int layer_ctr) {
+    private Double[][] propogate_layer(ArrayList<Double[][]> layer, Double[][] in, int layer_ctr) {
 
         state  = states.get(layer_ctr);
         forget = base.sigm(base.add(base.matmul(in,layer.get(0)),base.matmul(state,layer.get(1))));
@@ -201,7 +255,7 @@ class LSTM {
 
     }
 
-    Double[][] propogate_model(Double[][] in) {
+    private Double[][] propogate_model(Double[][] in) {
 
 
         int ctr = -1;
