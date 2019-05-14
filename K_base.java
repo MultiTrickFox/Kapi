@@ -5,7 +5,7 @@ import java.util.Random;
 
 class K_base {
 
-    Random random;
+    Random random = new Random(System.currentTimeMillis());
 
     double mean = 0;
     double dev = 1;
@@ -13,9 +13,9 @@ class K_base {
     // constructor
     
     K_base() {
-      
-      this.random = new Random(System.currentTimeMillis());
-      
+
+        this.random = new Random(System.currentTimeMillis());
+
     }
     
     // matrix initializers
