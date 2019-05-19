@@ -42,9 +42,9 @@ public class Main {
 //
 //        System.out.println(response.get(0)[0][1]);
 
-        ArrayList<Double[][]>[] responses = K_api.batch_response(gru, data);
+        // ArrayList<Double[][]>[] responses = K_api.batch_response(gru, data);
 
-        System.out.println("" + responses[0].get(0)[0]);
+        // System.out.println("" + responses[0].get(0)[0]);
 
 
 

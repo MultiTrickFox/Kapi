@@ -1,17 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 
 // 2DO: compile as .jar
 
 class K_api {
 
-
-    static int hm_cores = Runtime.getRuntime().availableProcessors();
-    static ExecutorService pool = Executors.newFixedThreadPool(hm_cores);
+    static K_base base = new K_base();
 
     K_api(){ }
 
@@ -23,6 +18,20 @@ class K_api {
         else return null;
 
     }
+
+//    static ArrayList<ArrayList<Double[][]>> train_model(ArrayList<ArrayList<Double[][]>> model, ArrayList<ArrayList<Double[][]>> data, int batch_size) {
+//
+//        int hm_batches = data.size() / batch_size;
+//        int hm_leftover = data.size() % batch_size;
+//
+//        for (int i = 0; i < hm_batches; i++) {
+//
+//
+//
+//        }
+//
+//
+//    }
 
     static ArrayList<ArrayList<Double[][]>> load(String source) {
 
@@ -40,23 +49,41 @@ class K_api {
     private static class R implements Callable<ArrayList<Double[][]>>{
 
         GRU model;
-        ArrayList<Double[][]> sequence;
+        ArrayList<Double[][]> input;
+        ArrayList<Double[][]> response;
 
-        R(GRU model,  ArrayList<Double[][]> sequence) {
+        R(GRU model,  ArrayList<Double[][]>[] data) {
+
             this.model = model;
-            this.sequence = sequence;
+            this.input = data[0];
+            this.response = data[1];
 
         }
 
         @Override
         public ArrayList<Double[][]> call() {
-            return model.respond_to(sequence);
+
+            ArrayList<Double[][]> output = model.respond_to(input);
+
+            double loss = 0;
+
+            for (int i = 0; i < response.size(); i++)
+
+                loss += base.sum(base.cross_entropy(response.get(i), output.get(i)));
+
+
+            // TODO : return batch_grads
+
+            return null;
 
         }
 
     }
 
-    static ArrayList<Double[][]>[] batch_response(GRU model, ArrayList<ArrayList<Double[][]>> batch) {
+    static int hm_cores = Runtime.getRuntime().availableProcessors();
+    static ExecutorService pool = Executors.newFixedThreadPool(hm_cores);
+
+    static ArrayList<Double[][]>[] batch_process(GRU model, ArrayList<ArrayList<Double[][]>[]> batch) {
 
         int batch_size = batch.size();
 
@@ -72,7 +99,7 @@ class K_api {
 
         ArrayList<R> tasks = new ArrayList<>();
 
-        for (ArrayList<Double[][]> data : batch)
+        for (ArrayList<Double[][]>[] data : batch)
 
             tasks.add(new R(model, data));
 
@@ -80,20 +107,37 @@ class K_api {
 
             List<Future<ArrayList<Double[][]>>> promises = pool.invokeAll(tasks);
 
-            ArrayList<Double[][]>[] responses = new ArrayList[batch_size];
+            ArrayList<Double[][]>[] batch_grads = new ArrayList[batch_size];
 
-                for (int i = 0; i < batch_size; i++){
+            for (Future promise : promises)
 
-                    try { responses[i] = promises.get(i).get(); } catch (Exception e) { e.printStackTrace(); }
+                while(!promise.isDone()) {System.out.println("Empty promises..");}
 
+            for (int i = 0; i < batch_size; i++)
+
+                try { batch_grads[i] = promises.get(i).get(); }
+                catch (Exception e) { e.printStackTrace(); }
+
+            return batch_grads;
+
+
+        } catch (Exception e) { e.printStackTrace(); return null; }
+
+    }
+
+    static private boolean is_done(List<Future<ArrayList<Double[][]>>> promises) {
+
+        for (Future promise : promises)
+
+            if (promise != null)
+
+                try {
+                    if (promise.get() == null) return false;
                 }
+                catch (InterruptedException e) { e.printStackTrace(); return false; }
+                catch (ExecutionException e) { e.printStackTrace(); }
 
-                return responses;
-
-
-        } catch (InterruptedException e) { e.printStackTrace(); return null; }
-
-
+        return true;
 
     }
     

@@ -270,6 +270,21 @@ class K_base {
         return out;
         
     }
+
+    double sum(Double[][] matrix) {
+
+        double sum = 0;
+        int hm_rows = matrix.length;
+        int hm_cols = matrix[0].length;
+
+        for (int i = 0; i < hm_rows; i++)
+            for (int j = 0; j < hm_cols; j++)
+                sum += matrix[i][j];
+
+
+        return sum;
+
+    }
     
     // special operations
 
@@ -315,7 +330,7 @@ class K_base {
        
     }
 
-    Double[][] cross_entropy(Double[][] target, Double[][] label) {
+    Double[][] cross_entropy(Double[][] target, Double[][] output) {
 
         int hm_rows = target.length;
         int hm_cols = target[0].length;
@@ -323,7 +338,7 @@ class K_base {
       
         for (int i = 0; i < hm_rows; i++)
             for (int j = 0; j < hm_cols; j++)
-                out[i][j] = (target[i][j] * Math.log(label[i][j])) + ((1 - target[i][j]) * Math.log(1 - label[i][j]));
+                out[i][j] = (target[i][j] * Math.log(output[i][j])) + ((1 - target[i][j]) * Math.log(1 - output[i][j]));
 
         return out;
    
