@@ -17,7 +17,7 @@ public class Main {
         System.out.println("Hello World!");
 
 
-        K_base kb = new K_base();
+        K_math kb = new K_math();
         K_api kapi = new K_api();
 
         GRU gru = (GRU) kapi.make_model("gru", in_size, hiddens, out_size);

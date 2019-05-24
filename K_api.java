@@ -2,11 +2,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-// 2DO: compile as .jar
 
 class K_api {
 
-    static K_base base = new K_base();
+    static K_math base = new K_math();
 
     K_api(){ }
 
@@ -145,7 +144,7 @@ class K_api {
 
 class GRU {
 
-    K_base base = new K_base();
+    K_math base = new K_math();
 
     private ArrayList<ArrayList<Double[][]>> layers = new ArrayList<>();
     private ArrayList<Double[][]> states = new ArrayList<>();
@@ -244,7 +243,7 @@ class GRU {
 
 class LSTM {
 
-    K_base base = new K_base();
+    K_math base = new K_math();
 
     private ArrayList<ArrayList<Double[][]>> layers = new ArrayList<>();
     private ArrayList<Double[][]> states = new ArrayList<>();

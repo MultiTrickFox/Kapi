@@ -1,9 +1,7 @@
-import java.util.ArrayList;
 import java.util.Random;
 
-// 2DO: compile as .jar
 
-class K_base {
+class K_math {
 
     static Random random = new Random(System.currentTimeMillis());
 
@@ -12,7 +10,7 @@ class K_base {
     
     // constructor
     
-    K_base() { } static K_base instance = new K_base();
+    K_math() { } static K_math instance = new K_math();
     
     // matrix initializers
     
@@ -56,6 +54,34 @@ class K_base {
         
         return out;
         
+    }
+
+    static Double[][] identity(int hm_rows, int hm_cols) {
+
+        assert hm_rows == hm_cols;
+
+        Double[][] out = new Double[hm_rows][hm_cols];
+
+        for (int i = 0; i < hm_rows; i++)
+
+            out[i][i] = 1.0;
+
+        return out;
+
+    }
+
+    static Double[][] constant(int hm_rows, int hm_cols, double value) {
+
+        Double[][] out = new Double[hm_rows][hm_cols];
+
+        for (int i = 0; i < hm_rows; i++) {
+            Double[] row = out[i];
+            for (int j = 0; j < hm_cols; j++)
+                row[j] = value;
+        }
+
+        return out;
+
     }
     
     // matrix operations
@@ -165,6 +191,41 @@ class K_base {
         return out;
         
     }
+
+    static Double[][][] matmul_wgrads(Double[][] a, Double[][] b) {
+
+        int hm_rows1 = a.length;
+        int hm_cols1 = a[0].length;
+        int hm_rows2 = b.length;
+        int hm_cols2 = b[0].length;
+
+        Double[][] out = new Double[hm_rows1][hm_cols2];
+        Double[][] grads_a = zeros(hm_rows1, hm_cols1);
+        Double[][] grads_b = zeros(hm_rows2, hm_cols2);
+
+        assert hm_cols1 == hm_rows2;
+
+        Double[] row, row_a;
+
+        for (int i = 0; i < hm_rows1; i++) {
+            row = out[i];
+            row_a = a[i];
+            for (int j = 0; j < hm_cols2; j++) {
+                row[j] = 0.0;
+                for (int k = 0; k < hm_cols1; k++) {
+                    row[j] += row_a[k] * b[k][j];
+                    //todo: optimize here.
+                    grads_a[i][k] += row[j] * b[k][j];
+                    grads_b[k][j] += row[j] * row_a[k];
+                }
+
+            }
+
+        }
+
+        return new Double[][][]{out, grads_a, grads_b};
+
+    }
     
     // scalar operations
     
@@ -186,6 +247,25 @@ class K_base {
         return out;
         
     } static Double[][] mul_scalar(Double[][] a, double b) { return mul_scalar(b, a); }
+
+    static Double[][] div_scalar(double b, Double[][] a) {
+
+        int hm_rows = a.length;
+        int hm_cols = a[0].length;
+        Double[][] out = new Double[hm_rows][hm_cols];
+
+        Double[] row, row_a;
+
+        for (int i = 0; i < hm_rows; i++) {
+            row = out[i];
+            row_a = a[i];
+            for (int j = 0; j < hm_cols; j++)
+                row[j] = b / row_a[j];
+        }
+
+        return out;
+
+    }
     
     static Double[][] sub_scalar(double b, Double[][] a) {
       
@@ -254,19 +334,24 @@ class K_base {
     } static int[] size(Double[][] matrix) { return new int[]{matrix.length,matrix[0].length}; }
     
     static Double[][] resize(Double[][] matrix, int[] sizes) {
-     
-        int hm_rows = matrix.length;
-        int hm_cols = matrix[0].length;
+
         Double[][] out = new Double[sizes[0]][sizes[1]];
+
+        Double[] row;
+
+        Double[] vector = matrix2vector(matrix);
         
         int ctr = -1;
-        for (int i = 0; i < sizes[0]; i++)
+        for (int i = 0; i < sizes[0]; i++) {
+            row = out[i];
             for (int j = 0; j < sizes[1]; j++) {
-              
+
                 ctr++;
-                // out[i][j] = a[][]; // TODO : derive row/col here.
-              
+                row[j] = vector[ctr];
+
             }
+
+        }
        
          return out;
        
@@ -337,6 +422,49 @@ class K_base {
                 sum += col;
 
         return sum;
+
+    }
+
+    static Double[][] sum(Double[][] matrix, int dim) {
+
+        int hm_rows = matrix.length;
+        int hm_cols = matrix[0].length;
+        Double[][] out = null;
+
+        if (dim == 0) {
+
+            out = new Double[1][hm_cols];
+            Double[] row = out[0];
+
+            double row_sum; // TODO : recheck???
+
+            for (int j = 0; j < hm_cols; j++) {
+
+                row_sum = 0;
+
+                for (int i = 0; i < hm_rows; i++)
+
+                    row_sum += matrix[i][j];
+
+                row[j] = row_sum;
+
+            }
+
+        }
+
+        if (dim == 1) {
+
+//            out = new Double[hm_rows][1];
+//
+//            double col_sum;
+//
+//            for (int )
+
+
+        }
+
+
+        return out;
 
     }
     
@@ -484,357 +612,6 @@ class K_base {
             
         return out;
         
-    }
-
-}
-
-
-class Tensor{
-
-    Double[][] matrix;
-    Double[][] grads;
-
-    ArrayList<Tensor> parents;
-    ArrayList<Tensor> childs;
-
-    // constructor
-
-    Tensor(Double[][] matrix) {
-
-        this.matrix = matrix;
-
-        int[] size = K_base.instance.size(matrix);
-        this.grads = new Double[size[0]][size[1]];
-        for (int i = 0; i < size[0]; i++) {
-            Double[] row = grads[i];
-            for (int j = 0; j < size[1]; j++) {
-                row[j] = 0.0;
-            }
-        }
-
-        this.parents = new ArrayList<>();
-        this.childs = new ArrayList<>();
-
-    }
-
-    // matrix initializers
-
-    static Tensor zeros(int hm_rows, int hm_cols) {
-
-        return new Tensor(K_base.zeros(hm_rows, hm_cols));
-
-    }
-
-    static Tensor ones(int hm_rows, int hm_cols) {
-
-        return new Tensor(K_base.ones(hm_rows, hm_cols));
-
-    }
-
-    static Tensor randn(int hm_rows, int hm_cols) {
-
-        return new Tensor(K_base.randn(hm_rows, hm_cols));
-
-    }
-
-    // matrix operations // TODO : _inplace this section
-
-    static Tensor add(Tensor t1, Tensor t2) {
-
-        Tensor tensor = new Tensor(K_base.add(t1.matrix, t2.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        return tensor;
-
-    }
-
-    static Tensor add(Tensor t1, Double[][] t2) {
-
-        Tensor tensor = new Tensor(K_base.add(t1.matrix, t2));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    } static Tensor add(Double[][] t1, Tensor t2) { return add(t2, t1); }
-
-    static Tensor sub(Tensor t1, Tensor t2) {
-
-        Tensor tensor = new Tensor(K_base.sub(t1.matrix, t2.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        return tensor;
-
-    }
-
-    static Tensor sub(Tensor t1, Double[][] t2) {
-
-        Tensor tensor = new Tensor(K_base.sub(t1.matrix, t2));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    } static Tensor sub(Double[][] t1, Tensor t2) { return sub(t2, t1); }
-
-    static Tensor mul(Tensor t1, Tensor t2) {
-
-        Tensor tensor = new Tensor(K_base.mul(t1.matrix, t2.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        return tensor;
-
-    }
-
-    static Tensor mul(Tensor t1, Double[][] t2) {
-
-        Tensor tensor = new Tensor(K_base.mul(t1.matrix, t2));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    } static Tensor mul(Double[][] t1, Tensor t2) { return mul(t2, t1); }
-
-    static Tensor div(Tensor t1, Tensor t2) {
-
-        Tensor tensor = new Tensor(K_base.div(t1.matrix, t2.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        return tensor;
-
-    }
-
-    static Tensor div(Tensor t1, Double[][] t2) {
-
-        Tensor tensor = new Tensor(K_base.div(t1.matrix, t2));
-
-        tensor.parents.add(t1);
-
-        t1.childs.add(tensor);
-
-        return tensor;
-
-    } static Tensor div(Double[][] t1, Tensor t2) { return div(t2, t1); }
-
-    static Tensor matmul(Tensor t1, Tensor t2) {
-
-        Tensor tensor = new Tensor(K_base.matmul(t1.matrix, t2.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        return tensor;
-
-    }
-
-    static Tensor matmul(Tensor t1, Double[][] t2) {
-
-        Tensor tensor = new Tensor(K_base.matmul(t1.matrix, t2));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    } static Tensor matmul(Double[][] t1, Tensor t2) { return matmul(t2, t1); }
-
-    // scalar operations // TODO : _inplace this section
-
-    static Tensor add_scalar(Tensor t1, Double s) {
-
-        Tensor tensor = new Tensor(K_base.add_scalar(t1.matrix, s));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static Tensor sub_scalar(Tensor t1, Double s) {
-
-        Tensor tensor = new Tensor(K_base.sub_scalar(t1.matrix, s));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static Tensor sub_scalar(Double s, Tensor t1) {
-
-        Tensor tensor = new Tensor(K_base.sub_scalar(s, t1.matrix));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static Tensor mul_scalar(Tensor t1, Double s) {
-
-        Tensor tensor = new Tensor(K_base.mul_scalar(t1.matrix, s));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    // helpers
-
-    private static void define_same_tensor(Tensor t1, Tensor t2) {
-
-        t1.childs.addAll(t2.childs);
-        t1.parents.addAll(t2.parents);
-
-        for (Tensor child : t2.childs)
-            child.parents.add(t1);
-
-        for (Tensor parent : t2.parents)
-            parent.childs.add(t1);
-
-    }
-
-    private static void define_child_tensor(Tensor t_child, Tensor t_parent) {
-
-        t_child.parents.add(t_parent);
-        t_parent.childs.add(t_child);
-
-    }
-
-    static int[] size(Tensor t1) {
-
-        return K_base.size(t1.matrix);
-
-    }
-
-    static int size(Tensor t1, int dim) {
-
-        return K_base.size(t1.matrix, dim);
-
-    }
-
-    static Tensor resize(Tensor t1, int[] sizes) {
-
-        Tensor tensor = new Tensor(K_base.resize(t1.matrix, sizes));
-
-        define_same_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static void resize_inplace(Tensor t1, int[] sizes) {
-
-        t1.matrix = K_base.resize(t1.matrix, sizes);
-
-    }
-
-    static Tensor array2matrix(Double[] array, int[] sizes) {
-
-        return new Tensor(K_base.vector2matrix(array, sizes));
-
-    }
-
-    static Tensor transpose(Tensor t1) {
-
-        Tensor tensor = new Tensor(K_base.transpose(t1.matrix));
-
-        define_same_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static void transpose_inplace(Tensor t1) {
-
-        t1.matrix = K_base.transpose(t1.matrix);
-
-    }
-
-    // special operations
-
-    static Tensor exp(Tensor t1, double exp) {
-
-        Tensor tensor = new Tensor(K_base.exp(t1.matrix, exp));
-
-        define_same_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static void exp_inplace(Tensor t1, double exp) {
-
-        t1.matrix = K_base.exp(t1.matrix, exp);
-
-    }
-
-    static Tensor tanh(Tensor t1) {
-
-        Tensor tensor = new Tensor(K_base.tanh(t1.matrix));
-
-        define_same_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static void tanh_inplace(Tensor t1) {
-
-        t1.matrix = K_base.tanh(t1.matrix);
-
-    }
-
-    static Tensor sigm(Tensor t1) {
-
-        Tensor tensor = new Tensor(K_base.tanh(t1.matrix));
-
-        define_same_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static void sigm_inplace(Tensor t1) {
-
-        t1.matrix = K_base.sigm(t1.matrix);
-
-    }
-
-    static Tensor cross_entropy(Tensor t1, Tensor t2) {
-
-        Tensor tensor = new Tensor(K_base.tanh(t1.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        return tensor;
-
-    }
-
-    static Tensor softmax(Tensor t1) {
-
-        Tensor tensor = new Tensor(K_base.softmax(t1.matrix));
-
-        define_same_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    static void softmax_inplace(Tensor t1) {
-
-        t1.matrix = K_base.softmax(t1.matrix);
-
     }
 
 }
