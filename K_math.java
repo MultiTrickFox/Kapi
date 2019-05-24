@@ -83,6 +83,31 @@ class K_math {
         return out;
 
     }
+
+    static Double[][] diag(double[] values) {
+
+        int dim = values.length;
+
+        Double[][] out = new Double[dim][dim];
+
+        int ctr = -1;
+        for (int i = 0; i < dim; i++) {
+            Double[] row = out[i];
+            for (int j = 0; j < dim; j++) {
+                ctr++;
+
+                if (i == j)
+                    row[j] = values[ctr];
+                else
+                    row[j] = 0.0;
+
+            }
+
+        }
+
+        return out;
+
+    }
     
     // matrix operations
 
@@ -477,7 +502,7 @@ class K_math {
     
     // special operations
 
-    static Double[][] exp(Double[][] matrix, double power) {
+    static Double[][] pow(Double[][] matrix, double power) {
       
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
@@ -494,6 +519,44 @@ class K_math {
                 
         return out;
         
+    }
+
+    static Double[][] exp(Double[][] matrix) {
+
+        int hm_rows = matrix.length;
+        int hm_cols = matrix[0].length;
+        Double[][] out = new Double[hm_rows][hm_cols];
+
+        Double[] row, row_a;
+
+        for (int i = 0; i < hm_rows; i++) {
+            row = out[i];
+            row_a = matrix[i];
+            for (int j = 0; j < hm_cols; j++)
+                row[j] = Math.exp(row_a[j]);
+        }
+
+        return out;
+
+    }
+
+    static Double[][] log(Double[][] matrix) {
+
+        int hm_rows = matrix.length;
+        int hm_cols = matrix[0].length;
+        Double[][] out = new Double[hm_rows][hm_cols];
+
+        Double[] row, row_a;
+
+        for (int i = 0; i < hm_rows; i++) {
+            row = out[i];
+            row_a = matrix[i];
+            for (int j = 0; j < hm_cols; j++)
+                row[j] = Math.log(row_a[j]);
+        }
+
+        return out;
+
     }
 
     static Double[][] sigm(Double[][] matrix) {

@@ -47,6 +47,29 @@ public class Main {
         // System.out.println("" + responses[0].get(0)[0]);
 
 
+        Double[][] matrix1 = new Double[1][2];
+        Double[][] matrix2 = new Double[2][3];
+
+        for (int i = 0; i < matrix1.length; i++)
+            for (int j = 0; j < matrix1[0].length; j++)
+                    matrix1[i][j] = 3.0;
+
+        for (int i = 0; i < matrix2.length; i++)
+            for (int j = 0; j < matrix2[0].length; j++)
+                matrix2[i][j] = 3.0;
+
+        K_tensor tensor1 = new K_tensor(matrix1);
+        K_tensor tensor2 = new K_tensor(matrix2);
+
+        K_tensor result = K_tensor.matmul(tensor1, tensor2);
+
+        System.out.println("" + K_tensor.size(result)[0] + " " + K_tensor.size(result)[1]);
+
 
     }
+
+
+
+
+
 }
