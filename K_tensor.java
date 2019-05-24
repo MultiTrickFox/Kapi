@@ -154,31 +154,31 @@ class K_tensor{
 
     } static K_tensor mul(Double[][] t1, K_tensor t2) { return mul(t2, t1); }
 
-    static K_tensor div(K_tensor t1, K_tensor t2) {
-
-        K_tensor tensor = new K_tensor(K_math.div(t1.matrix, t2.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        tensor.parent_grads.add(K_math.div_scalar(1, t2.matrix));  // TODO : correct.
-        tensor.parent_grads.add(t1.matrix);          // TODO : correct.
-
-        return tensor;
-
-    }
-
-    static K_tensor div(K_tensor t1, Double[][] t2) {
-
-        K_tensor tensor = new K_tensor(K_math.div(t1.matrix, t2));
-
-        define_child_tensor(tensor, t1);
-
-        tensor.parent_grads.add(K_math.div_scalar(1, t2));
-
-        return tensor;
-
-    } static K_tensor div(Double[][] t1, K_tensor t2) { return div(t2, t1); }
+//    static K_tensor div(K_tensor t1, K_tensor t2) {
+//
+//        K_tensor tensor = new K_tensor(K_math.div(t1.matrix, t2.matrix));
+//
+//        define_child_tensor(tensor, t1);
+//        define_child_tensor(tensor, t2);
+//
+//        tensor.parent_grads.add(K_math.div_scalar(1, t2.matrix));
+//        tensor.parent_grads.add(t1.matrix);
+//
+//        return tensor;
+//
+//    }
+//
+//    static K_tensor div(K_tensor t1, Double[][] t2) {
+//
+//        K_tensor tensor = new K_tensor(K_math.div(t1.matrix, t2));
+//
+//        define_child_tensor(tensor, t1);
+//
+//        tensor.parent_grads.add(K_math.div_scalar(1, t2));
+//
+//        return tensor;
+//
+//    } static K_tensor div(Double[][] t1, K_tensor t2) { return div(t2, t1); }
 
     static K_tensor matmul(K_tensor t1, K_tensor t2) {
 
@@ -268,22 +268,27 @@ class K_tensor{
 
     }
 
-    static K_tensor div_scalar(Double s, K_tensor t1) { //todo : left here.
+//    static K_tensor div_scalar(Double s, K_tensor t1) {
+//
+//        K_tensor tensor = new K_tensor(K_math.div_scalar(s, t1.matrix));
+//
+//        define_child_tensor(tensor, t1);
+//
+//        int[] size_p1 = K_math.size(t1.matrix);
+//
+//        tensor.parent_grads.add(K_math.constant(size_p1[0], size_p1[1], ??))
+//
+//        return tensor;
+//
+//    }
 
-        K_tensor tensor = new K_tensor(K_math.div_scalar(s, t1.matrix));
-
-        define_child_tensor(tensor, t1);
-
-        return tensor;
-
-    }
-
-    // helpers
+    // graph helpers
 
     private static void define_same_tensor(K_tensor t1, K_tensor t2) {
 
         t1.childs.addAll(t2.childs);
         t1.parents.addAll(t2.parents);
+        t1.parent_grads = t2.parent_grads;
 
         for (K_tensor child : t2.childs)
             child.parents.add(t1);
@@ -300,32 +305,21 @@ class K_tensor{
 
     }
 
-//    private static Double[][] grad_wrt(K_tensor t1, K_tensor t2) {
-//
-//        int[] grad_size = K_math.size(t1.matrix);
-//        Double[][] grad = new Double[grad_size[0]][grad_size[1]];
-//
-//        switch(t2.type) {
-//
-//            case "t":
-//
-//            case "sigm":
-//
-//            case "tanh":
-//
-//            case "exp":
-//
-//            case "soft":
-//
-//        }
-//
-//    }
+    static void fill_grads(K_tensor t1) {
 
-    static void backward(K_tensor t1) {
-
-        // todo : fill in grads by taking grad_wrt
+        // TODO : fill in grads of parents wrt parent_grads
 
     }
+
+    static void empty_grads() {
+
+        // TODO : do.
+
+        // keep an arraylist of added_tensors & free?
+
+    }
+
+    // tensor helpers
 
     static int[] size(K_tensor t1) {
 
@@ -383,14 +377,9 @@ class K_tensor{
 
         K_tensor tensor = new K_tensor(K_math.exp(t1.matrix, exp));
 
-        // define_same_tensor(tensor, t1);
+        define_child_tensor(tensor, t1);
 
-//        int[] size = K_math.size(t1.matrix);
-//        double back =
-//
-//                K_tensor t_exp = new K_tensor(K_math.identity(size[0], size[1], back));
-//
-//        define_child_tensor(t_exp);
+        tensor.parent_grads.add(K_math.mul_scalar(exp, K_math.exp(t1.matrix, exp-1)));
 
         return tensor;
 
@@ -406,7 +395,23 @@ class K_tensor{
 
         K_tensor tensor = new K_tensor(K_math.tanh(t1.matrix));
 
-        // define_same_tensor(tensor, t1);
+        define_child_tensor(tensor, t1);
+
+        int[] size_p1 = K_math.size(t1.matrix);
+
+        Double[][] parent_grad = new Double[size_p1[0]][size_p1[1]];
+
+        Double[] row1, row2;
+
+        for (int i = 0; i < size_p1[0]; i++) {
+            row1 = parent_grad[i];
+            row2 = tensor.matrix[i];
+            for (int j = 0; j < size_p1[1]; j++)
+                row1[j] = 1 - Math.pow(row2[j], 2);
+
+        }
+
+        tensor.parent_grads.add(parent_grad);
 
         return tensor;
 
@@ -418,13 +423,27 @@ class K_tensor{
 //
 //    }
 
-    static K_tensor sigm(K_tensor t1) { // TODO : revisit.
+    static K_tensor sigm(K_tensor t1) {
 
         K_tensor tensor = new K_tensor(K_math.tanh(t1.matrix));
 
-        // define_same_tensor(tensor, t1);
+        define_child_tensor(tensor, t1);
 
+        int[] size_p1 = K_math.size(t1.matrix);
 
+        Double[][] parent_grad = new Double[size_p1[0]][size_p1[1]];
+
+        Double[] row1, row2;
+
+        for (int i = 0; i < size_p1[0]; i++) {
+            row1 = parent_grad[i];
+            row2 = tensor.matrix[i];
+            for (int j = 0; j < size_p1[1]; j++)
+                row1[j] = row2[j] * (1 - row2[j]);
+
+        }
+
+        tensor.parent_grads.add(parent_grad);
 
         return tensor;
 
@@ -462,64 +481,5 @@ class K_tensor{
 //        t1.matrix = K_math.softmax(t1.matrix);
 //
 //    }
-
-}
-
-
-class K_graph{
-
-    static void define_child_node(Node n1, Node n2) {
-
-        n1.parents.add(n2);
-        n2.childs.add(n1);
-
-    }
-
-    class Node{
-
-        ArrayList<Node> parents;
-        ArrayList<Node> childs;
-
-        String type;
-        K_tensor tensor;
-
-        Node(String type) {
-
-            this.type = type;
-            this.parents = new ArrayList<>();
-
-        }
-
-        Node(String type, K_tensor tensor) {
-
-            this.type = type;
-            this.tensor = tensor;
-            this.parents = new ArrayList<>();
-            this.childs = new ArrayList<>();
-
-        }
-
-        Double[][] backward(Double[][] incoming) {
-
-            switch(this.type) {
-
-                case "t":
-
-                case "sigm":
-
-                case "tanh":
-
-                case "exp":
-
-                case "soft":
-
-
-
-            }
-
-        }
-
-    }
-
 
 }

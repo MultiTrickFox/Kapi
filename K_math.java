@@ -435,18 +435,16 @@ class K_math {
 
             out = new Double[1][hm_cols];
             Double[] row = out[0];
-
-            double row_sum; // TODO : recheck???
+            double col_sum;
 
             for (int j = 0; j < hm_cols; j++) {
 
-                row_sum = 0;
+                col_sum = 0;
 
                 for (int i = 0; i < hm_rows; i++)
+                    col_sum += matrix[i][j];
 
-                    row_sum += matrix[i][j];
-
-                row[j] = row_sum;
+                row[j] = col_sum;
 
             }
 
@@ -454,12 +452,21 @@ class K_math {
 
         if (dim == 1) {
 
-//            out = new Double[hm_rows][1];
-//
-//            double col_sum;
-//
-//            for (int )
+            out = new Double[hm_rows][1];
+            double row_sum;
 
+            int i = -1;
+            for (Double[] row : matrix) {
+                i++;
+
+                row_sum = 0;
+
+                for (Double e : row)
+                    row_sum += e;
+
+                out[i][0] = row_sum;
+
+            }
 
         }
 
