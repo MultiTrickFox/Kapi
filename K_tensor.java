@@ -11,6 +11,8 @@ class K_tensor{
 
     ArrayList<Double[][]> parent_grads;
 
+    static ArrayList<K_tensor> graph = new ArrayList<>();
+
     // constructor
 
     K_tensor(Double[][] matrix) {
@@ -30,9 +32,11 @@ class K_tensor{
         this.childs = new ArrayList<>();
         this.parent_grads = new ArrayList<>();
 
+        graph.add(this);
+
     }
 
-    K_tensor() { }
+    K_tensor() { graph.add(this); }
 
     // matrix initializers
 
@@ -274,7 +278,7 @@ class K_tensor{
 
     // graph helpers
 
-    private static void define_same_tensor(K_tensor t1, K_tensor t2) {
+    private static void define_same_tensor(K_tensor t1, K_tensor t2) { // if problematic, interchange w/ new-node w/ back_grad = ones()
 
         t1.childs.addAll(t2.childs);
         t1.parents.addAll(t2.parents);
@@ -297,17 +301,45 @@ class K_tensor{
 
     }
 
-    static void fill_grads(K_tensor t1) {
+    static void fill(K_tensor t1) {
+
+        Double[][] sum = K_math.constant(size(t1)[0], size(t1)[1], sum(sum(t1,0),1).matrix[0][0]);
+
+        t1.grads = K_math.add(t1.grads, sum);
+
+        int parent_ctr = -1;
+        for (K_tensor parent : t1.parents) {
+            parent_ctr++;
+
+            fill(parent, t1.parent_grads.get(parent_ctr));
+
+        }
 
         // TODO : fill in grads of parents wrt parent_grads
 
     }
 
-    static void empty_grads() {
+    static void fill(K_tensor t1, Double[][] incoming) {
 
-        // TODO : do.
+        t1.grads = K_math.add(t1.grads, incoming);
 
-        // keep an arraylist of added_tensors & free?
+        int parent_ctr = -1;
+        for (K_tensor parent : t1.parents) {
+            parent_ctr++;
+
+            fill(parent, t1.parent_grads.get(parent_ctr));
+
+        }
+
+    }
+
+    static void empty() {
+
+        for (K_tensor tensor : graph)
+
+            tensor.grads = K_math.zeros(size(tensor, 0), size(tensor, 1));
+
+        graph = new ArrayList<>();
 
     }
 

@@ -65,6 +65,13 @@ public class Main {
 
         System.out.println("" + K_tensor.size(result)[0] + " " + K_tensor.size(result)[1]);
 
+        K_tensor.fill(result);
+
+        System.out.println("" + tensor1.grads[0][1] + " " + tensor2.grads[0][1]);
+
+        K_tensor.empty();
+
+        System.out.println("" + tensor1.grads[0][1] + " " + tensor2.grads[0][1]);
 
     }
 
