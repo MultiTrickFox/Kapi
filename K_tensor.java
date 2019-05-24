@@ -343,9 +343,7 @@ class K_tensor{
 
     }
 
-    static K_tensor scalar_tensor(K_tensor t1) {
-
-        int[] sizes = K_math.size(t1.matrix);
+    static K_tensor scalar_tensor(K_tensor t1, int[] sizes) {
 
         K_tensor tensor = new K_tensor(K_math.constant(sizes[0], sizes[1], t1.matrix[0][0]));
 
@@ -558,13 +556,13 @@ class K_tensor{
 
     }
 
-    static K_tensor softmax(K_tensor t1, int dim, int true_index) { // stable softmax ; x - np.max(x) first.
+    static K_tensor softmax(K_tensor t1) { // stable softmax ; x - np.max(x) first.
 
         assert t1.matrix.length == 1 || t1.matrix[0].length == 1;
 
         K_tensor exp = exp(t1);
 
-        K_tensor exp_sum = scalar_tensor(sum(sum(exp, 0), 1));
+        K_tensor exp_sum = scalar_tensor(sum(sum(exp, 0), 1), size(t1));
 
         return div(exp, exp_sum);
 
