@@ -5,7 +5,8 @@ import java.util.concurrent.*;
 
 class K_api {
 
-    static K_math base = new K_math();
+    static K_math math_base = new K_math();
+
 
     K_api(){ }
 
@@ -68,7 +69,7 @@ class K_api {
 
             for (int i = 0; i < response.size(); i++)
 
-                loss += base.sum(base.cross_entropy(response.get(i), output.get(i)));
+                loss += math_base.sum(math_base.cross_entropy(response.get(i), output.get(i)));
 
 
             // TODO : return batch_grads

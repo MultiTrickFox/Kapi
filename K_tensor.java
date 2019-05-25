@@ -36,7 +36,7 @@ class K_tensor{
 
     }
 
-    K_tensor() { graph.add(this); }
+    K_tensor() { }
 
     // matrix initializers
 
@@ -301,25 +301,21 @@ class K_tensor{
 
     }
 
-    static void fill(K_tensor t1) {
+    static void make_grads(K_tensor t1) {
 
-        Double[][] sum = K_math.constant(size(t1)[0], size(t1)[1], sum(sum(t1,0),1).matrix[0][0]);
-
-        t1.grads = K_math.add(t1.grads, sum);
+        t1 = sum(sum(t1,0),1);
 
         int parent_ctr = -1;
         for (K_tensor parent : t1.parents) {
             parent_ctr++;
 
-            fill(parent, t1.parent_grads.get(parent_ctr));
+            make_grads(parent, t1.parent_grads.get(parent_ctr));
 
         }
 
-        // TODO : fill in grads of parents wrt parent_grads
-
     }
 
-    static void fill(K_tensor t1, Double[][] incoming) {
+    private static void make_grads(K_tensor t1, Double[][] incoming) {
 
         t1.grads = K_math.add(t1.grads, incoming);
 
@@ -327,13 +323,13 @@ class K_tensor{
         for (K_tensor parent : t1.parents) {
             parent_ctr++;
 
-            fill(parent, t1.parent_grads.get(parent_ctr));
+            make_grads(parent, K_math.mul(t1.parent_grads.get(parent_ctr), incoming));
 
         }
 
     }
 
-    static void empty() {
+    static void erase_grads() {
 
         for (K_tensor tensor : graph)
 
@@ -427,11 +423,11 @@ class K_tensor{
 
         K_tensor tensor = new K_tensor(K_math.sum(t1.matrix, dim));
 
-        define_child_tensor(tensor, t1);
+        define_same_tensor(tensor, t1);
 
-        int[] size_p1 = K_math.size(t1.matrix);
-
-        tensor.parent_grads.add(K_math.ones(size_p1[0], size_p1[1]));
+//        int[] size_p1 = K_math.size(t1.matrix);
+//
+//        tensor.parent_grads.add(K_math.ones(size_p1[0], size_p1[1]));
 
         return tensor;
     }
@@ -520,7 +516,7 @@ class K_tensor{
 
     static K_tensor sigm(K_tensor t1) {
 
-        K_tensor tensor = new K_tensor(K_math.tanh(t1.matrix));
+        K_tensor tensor = new K_tensor(K_math.sigm(t1.matrix));
 
         define_child_tensor(tensor, t1);
 
@@ -556,6 +552,12 @@ class K_tensor{
 
     }
 
+    static K_tensor mean_square(K_tensor t1, K_tensor t2) {
+
+        return pow(sub(t1, t2), 2);
+
+    }
+
     static K_tensor softmax(K_tensor t1) { // stable softmax ; x - np.max(x) first.
 
         assert t1.matrix.length == 1 || t1.matrix[0].length == 1;
@@ -565,6 +567,8 @@ class K_tensor{
         K_tensor exp_sum = scalar_tensor(sum(sum(exp, 0), 1), size(t1));
 
         return div(exp, exp_sum);
+
+        // return div(exp(t1), scalar_tensor(sum(sum(exp(t1), 0), 1), size(t1)));
 
     }
 

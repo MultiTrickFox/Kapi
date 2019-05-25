@@ -240,8 +240,8 @@ class K_math {
                 for (int k = 0; k < hm_cols1; k++) {
                     row[j] += row_a[k] * b[k][j];
                     //todo: optimize here.
-                    grads_a[i][k] += row[j] * b[k][j];
-                    grads_b[k][j] += row[j] * row_a[k];
+                    grads_a[i][k] += row_a[k] * b[k][j] * b[k][j];
+                    grads_b[k][j] += row_a[k] * b[k][j] * row_a[k];
                 }
 
             }
