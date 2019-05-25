@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class Main {
 
 
@@ -14,110 +12,94 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // here lies the testing grounds..
 
-        System.out.println("Hello World!");
+        Double[][] in = new Double[1][2];
+        Double[][] w1 = new Double[2][3];
+        Double[][] w2 = new Double[3][1];
+        Double[][] l = new Double[1][1];
+
+        in[0][0] = 0.2;
+        in[0][1] = 0.3;
+
+        w1[0][0] = 0.3;
+        w1[0][1] = 0.4;
+        w1[0][2] = 0.5;
+        w1[1][0] = 0.6;
+        w1[1][1] = 0.1;
+        w1[1][2] = 0.2;
+
+        w2[0][0] = 0.7;
+        w2[1][0] = 0.1;
+        w2[2][0] = -0.2;
+
+        l[0][0] = 0.1;
+
+        // K_tensor t_in = new K_tensor(in); t_in.requires_grad=false;
+        Double[][] t_in = l;
+        K_tensor t_w1 = new K_tensor(w1); t_w1.requires_grad=true;
+        K_tensor t_w2 = new K_tensor(w2); t_w2.requires_grad=true;
 
 
-        K_math kb = new K_math();
-        K_api kapi = new K_api();
+        K_tensor node_out = K_tensor.matmul(t_in, t_w1);
+        K_tensor node_out_gated = K_tensor.sigm(node_out);
 
-        GRU gru = (GRU) kapi.make_model("gru", in_size, hiddens, out_size);
+        K_tensor node_out2 = K_tensor.matmul(node_out_gated, t_w2);
 
-        ArrayList<ArrayList<Double[][]>> data = new ArrayList<>();
-
-
-        for (int i = 0; i < hm_data; i++) {
-
-            ArrayList<Double[][]> sequence = new ArrayList<>();
-
-            for (int k = 0; k < hm_timesteps; k++)
-
-                sequence.add(kb.randn(1,in_size));
-
-            data.add(sequence);
-
-        }
+        K_tensor node_loss = K_tensor.mean_square(l, node_out2);
 
 
-//        ArrayList<Double[][]> response = gru.respond_to(data.get(0));
+        double loss = K_tensor.fill_grads(node_loss);
+
+        System.out.println("Loss: " + loss + " " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
+
+        t_w1.matrix = K_math.sub(t_w1.matrix, K_math.mul_scalar(t_w1.grad, 0.01));
+        t_w2.matrix = K_math.sub(t_w2.matrix, K_math.mul_scalar(t_w2.grad, 0.01));
+
+        K_tensor.empty_grads();
+
+
+
+        // repeat.
+        node_out = K_tensor.matmul(t_in, t_w1);
+        node_out_gated = K_tensor.sigm(node_out);
+
+        node_out2 = K_tensor.matmul(node_out_gated, t_w2);
+
+        node_loss = K_tensor.mean_square(l, node_out2);
+
+
+        loss = K_tensor.fill_grads(node_loss);
+
+        System.out.println("Loss: " + loss + " " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
+
+        K_tensor.empty_grads();
+
+
+
+//        K_tensor tensor_x = K_tensor.constants(in_size, 3, 2.0);
+//        K_tensor tensor_w = K_tensor.constants(3, out_size, 3.0);
 //
-//        System.out.println(response.get(0)[0][1]);
-
-        // ArrayList<Double[][]>[] responses = K_api.batch_response(gru, data);
-
-        // System.out.println("" + responses[0].get(0)[0]);
-
-
-        Double[][] matrix1 = new Double[1][2];
-        Double[][] matrix2 = new Double[2][3];
-        Double[][] matrix3 = new Double[3][3];
-
-        Double[][] matrix4 = new Double[1][2];
-        Double[][] matrix5 = new Double[1][2];
-
-        K_tensor label = K_tensor.randn(1,3);
-
-        for (int i = 0; i < matrix1.length; i++)
-            for (int j = 0; j < matrix1[0].length; j++)
-                    matrix1[i][j] = 0.02;
-
-        for (int i = 0; i < matrix2.length; i++)
-            for (int j = 0; j < matrix2[0].length; j++)
-                matrix2[i][j] = 0.21;
-
-        for (int i = 0; i < matrix3.length; i++)
-            for (int j = 0; j < matrix3[0].length; j++)
-                matrix3[i][j] = 4.0;
-
-        for (int i = 0; i < matrix4.length; i++)
-            for (int j = 0; j < matrix4[0].length; j++)
-                matrix4[i][j] = 0.001;
-
-        for (int i = 0; i < matrix5.length; i++)
-            for (int j = 0; j < matrix5[0].length; j++)
-                matrix5[i][j] = 0.4;
-
-        K_tensor tensor1 = new K_tensor(matrix1);
-        K_tensor tensor2 = new K_tensor(matrix2);
-        K_tensor tensor3 = new K_tensor(matrix3); //K_tensor.randn(1,3);
-        K_tensor tensor4 = new K_tensor(matrix4); //K_tensor.randn(1,3);
-        K_tensor tensor5 = new K_tensor(matrix5); //K_tensor.randn(1,3);
-
-//        K_tensor result = K_tensor.matmul(tensor1, tensor2);
-
-        K_tensor mul = K_tensor.mul(tensor1, tensor4);
-
-        K_tensor result = K_tensor.cross_entropy(tensor5, K_tensor.softmax(mul));
+//        K_tensor tensor_lbl = K_tensor.constants(1, out_size, 7.0);
 //
-//        K_tensor.make_grads(result);
-//        System.out.println("" + tensor1.grads[0][0] + " " + tensor2.grads[0][1]);
-//        K_tensor.erase_grads();
-
-        // K_tensor result2 = K_tensor.cross_entropy(label, result);
-
-        K_tensor.make_grads(result);
-
-        //System.out.println("" + mul.grads[0][0]);
-
-        // K_tensor.make_grads(result2);
-        System.out.println("" + tensor1.grads[0][0] + " " + tensor4.grads[0][0]);
-        K_tensor.erase_grads();
-
-//        K_tensor result_sigm = K_tensor.sigm(result);
+//        double loss = K_tensor.fill_grads(K_tensor.mean_square(tensor_lbl, K_tensor.matmul(tensor_x, tensor_w)));
 //
-//        K_tensor result2 = K_tensor.matmul(result_sigm, tensor3);
+//        System.out.println("Loss value: " + loss);
+//        System.out.println("Grad w[0][0] value: " + tensor_w.grad[0][0]);
+//        System.out.println("Grad w[0][1] value: " + tensor_w.grad[0][1]);
 //
-//        K_tensor soft = K_tensor.softmax(result2);
+//        tensor_w.matrix = K_math.sub(tensor_w.matrix, K_math.mul_scalar(tensor_w.grad, 0.001));
 //
-//        K_tensor loss = K_tensor.cross_entropy(target, soft);
+//        K_tensor.empty_grads();
 //
-//        K_tensor.make_grads(loss);
 //
-//        System.out.println("" + tensor1.grads[0][0] + " " + tensor2.grads[0][0] + " " + tensor2.grads[0][0]);
+//        loss = K_tensor.fill_grads(K_tensor.mean_square(tensor_lbl, K_tensor.matmul(tensor_x, tensor_w)));
 //
-//        K_tensor.erase_grads();
+//        System.out.println("Loss value: " + loss);
+//        System.out.println("Grad w[0][0] value: " + tensor_w.grad[0][0]);
+//        System.out.println("Grad w[0][1] value: " + tensor_w.grad[0][1]);
 //
-
+//        K_tensor.empty_grads();
 
 
 

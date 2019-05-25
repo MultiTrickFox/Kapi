@@ -595,6 +595,12 @@ class K_tensor {
 
     }
 
+    static K_tensor mean_square(Double[][] t_lbl, K_tensor t_out) {
+
+        return pow(sub(t_lbl, t_out), 2);
+
+    } static K_tensor mean_square(K_tensor t_out, Double[][] t_lbl) { return mean_square(t_lbl, t_out); }
+
     static K_tensor softmax(K_tensor t1) { // stable softmax ; x - np.max(x) first.
 
         K_tensor exp = exp(t1);
@@ -606,6 +612,12 @@ class K_tensor {
     }
 
     static K_tensor cross_entropy(K_tensor t_lbl, K_tensor t_out) {
+
+        return mul(-1.0, mul(t_lbl, log(t_out)));
+
+    }
+
+    static K_tensor cross_entropy(Double[][] t_lbl, K_tensor t_out) {
 
         return mul(-1.0, mul(t_lbl, log(t_out)));
 
