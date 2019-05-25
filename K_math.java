@@ -3,23 +3,28 @@ import java.util.Random;
 
 class K_math {
 
+
     static Random random = new Random(System.currentTimeMillis());
 
     static double mean = 0;
     static double dev = 1;
-    
+
+
     // constructor
     
     K_math() { } static K_math instance = new K_math();
-    
+
+
     // matrix initializers
     
     static Double[][] zeros(int hm_rows, int hm_cols) {
       
         Double[][] out = new Double[hm_rows][hm_cols];
+
+        Double[] row;
         
         for (int i = 0; i < hm_rows; i++) {
-            Double[] row = out[i];
+            row = out[i];
             for (int j = 0; j < hm_cols; j++)
                 row[j] = 0.0;
         }
@@ -31,9 +36,11 @@ class K_math {
     static Double[][] ones(int hm_rows, int hm_cols) {
       
         Double[][] out = new Double[hm_rows][hm_cols];
+
+        Double[] row;
         
         for (int i = 0; i < hm_rows; i++) {
-            Double[] row = out[i];
+            row = out[i];
             for (int j = 0; j < hm_cols; j++)
                 row[j] = 1.0;
         }
@@ -45,9 +52,11 @@ class K_math {
     static Double[][] randn(int hm_rows, int hm_cols) {
       
         Double[][] out = new Double[hm_rows][hm_cols];
+
+        Double[] row;
         
         for (int i = 0; i < hm_rows; i++) {
-            Double[] row = out[i];
+            row = out[i];
             for (int j = 0; j < hm_cols; j++)
                 row[j] = random.nextGaussian() * dev + mean;
         }
@@ -63,19 +72,20 @@ class K_math {
         Double[][] out = new Double[hm_rows][hm_cols];
 
         for (int i = 0; i < hm_rows; i++)
-
             out[i][i] = 1.0;
 
         return out;
 
     }
 
-    static Double[][] constant(int hm_rows, int hm_cols, double value) {
+    static Double[][] constants(int hm_rows, int hm_cols, double value) {
 
         Double[][] out = new Double[hm_rows][hm_cols];
 
+        Double[] row;
+
         for (int i = 0; i < hm_rows; i++) {
-            Double[] row = out[i];
+            row = out[i];
             for (int j = 0; j < hm_cols; j++)
                 row[j] = value;
         }
@@ -84,31 +94,7 @@ class K_math {
 
     }
 
-    static Double[][] diag(double[] values) {
 
-        int dim = values.length;
-
-        Double[][] out = new Double[dim][dim];
-
-        int ctr = -1;
-        for (int i = 0; i < dim; i++) {
-            Double[] row = out[i];
-            for (int j = 0; j < dim; j++) {
-                ctr++;
-
-                if (i == j)
-                    row[j] = values[ctr];
-                else
-                    row[j] = 0.0;
-
-            }
-
-        }
-
-        return out;
-
-    }
-    
     // matrix operations
 
     static Double[][] add(Double[][] a, Double[][] b) {
@@ -230,18 +216,22 @@ class K_math {
 
         assert hm_cols1 == hm_rows2;
 
-        Double[] row, row_a;
+        Double[] row, row_a, row_b, row_grad_a;
+        double e_a, e_b;
 
         for (int i = 0; i < hm_rows1; i++) {
             row = out[i];
             row_a = a[i];
+            row_grad_a = grads_a[i];
             for (int j = 0; j < hm_cols2; j++) {
                 row[j] = 0.0;
                 for (int k = 0; k < hm_cols1; k++) {
-                    row[j] += row_a[k] * b[k][j];
-                    //todo: optimize here.
-                    grads_a[i][k] += row_a[k] * b[k][j] * b[k][j];
-                    grads_b[k][j] += row_a[k] * b[k][j] * row_a[k];
+                    row_b = b[k];
+                    e_a = row_a[k];
+                    e_b = row_b[j];
+                    row[j] += e_a * e_b;
+                    row_grad_a[k] += e_a * e_b * b[k][j];
+                    grads_b[k][j] += e_a * e_b * row_a[k];
                 }
 
             }
@@ -251,7 +241,8 @@ class K_math {
         return new Double[][][]{out, grads_a, grads_b};
 
     }
-    
+
+
     // scalar operations
     
     static Double[][] mul_scalar(double b, Double[][] a) {
@@ -290,7 +281,7 @@ class K_math {
 
         return out;
 
-    }
+    } static Double[][] div_scalar(Double[][] a, double b) { return mul_scalar(1/b, a); }
     
     static Double[][] sub_scalar(double b, Double[][] a) {
       
@@ -348,7 +339,8 @@ class K_math {
         return out;
         
     } static Double[][] add_scalar(Double[][] a, double b) { return add_scalar(b, a); }
-    
+
+
     // helpers
 
     static int size(Double[][] matrix, int dim) {
@@ -463,12 +455,10 @@ class K_math {
             double col_sum;
 
             for (int j = 0; j < hm_cols; j++) {
-
                 col_sum = 0;
 
                 for (int i = 0; i < hm_rows; i++)
                     col_sum += matrix[i][j];
-
                 row[j] = col_sum;
 
             }
@@ -483,23 +473,21 @@ class K_math {
             int i = -1;
             for (Double[] row : matrix) {
                 i++;
-
                 row_sum = 0;
 
                 for (Double e : row)
                     row_sum += e;
-
                 out[i][0] = row_sum;
 
             }
 
         }
 
-
         return out;
 
     }
-    
+
+
     // special operations
 
     static Double[][] pow(Double[][] matrix, double power) {
@@ -610,7 +598,7 @@ class K_math {
             row_a = target[i];
             row_b = output[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = -(row_a[j]*Math.log(row_b[j])); // row[j] = (row_a[j] * Math.log(row_b[j])) + ((1 - row_a[j]) * Math.log(1 - row_b[j]));
+                row[j] = -(row_a[j]*Math.log(row_b[j]));
         }
 
         return out;
@@ -626,6 +614,7 @@ class K_math {
         Double[] row, row_a;
 
         double sum = 0;
+
         for (int i = 0; i < hm_rows; i++) {
             row_a = matrix[i];
             for (int j = 0; j < hm_cols; j++)
@@ -642,6 +631,7 @@ class K_math {
         }
         
         if (hm_cols == 1)
+
             for (int k = 0; k < hm_rows; k++)
                 out[k][0] = Math.exp(matrix[k][0])/sum;
         
@@ -664,7 +654,6 @@ class K_math {
 
             for (int k = index_begin; k < index_end; k++)
                 sum += Math.exp(row_a[k]);
-          
             for (int k = index_begin; k < index_end; k++)
                 row[k] = Math.exp(row_a[k])/sum;
            
@@ -674,7 +663,6 @@ class K_math {
           
             for (int k = index_begin; k < index_end; k++)
                 sum += Math.exp(matrix[k][0]);
-          
             for (int k = index_begin; k < index_end; k++)
                 out[k][0] = Math.exp(matrix[k][0])/sum;
           
