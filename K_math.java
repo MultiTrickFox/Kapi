@@ -249,6 +249,77 @@ class K_math {
 
     }
 
+    static Double[][] backprop_helper(Double[][] parent_grad, Double[][] incoming_grad) {
+
+        if (parent_grad.length == incoming_grad.length && parent_grad[0].length == incoming_grad[0].length) {
+
+            int hm_rows = parent_grad.length;
+            int hm_cols = parent_grad[0].length;
+            Double[][] out = new Double[hm_rows][hm_cols];
+
+            Double[] row, row_a, row_b;
+
+            for (int i = 0; i < hm_rows; i++) {
+                row = out[i];
+                row_a = parent_grad[i];
+                row_b = incoming_grad[i];
+                for (int j = 0; j < hm_cols; j++)
+                    row[j] = row_a[j] * row_b[j];
+            }
+
+            return out;
+
+        }
+
+        else {
+
+            int parent_rows = parent_grad.length;
+            int parent_cols = parent_grad[0].length;
+            int incoming_rows = incoming_grad.length;
+            int incoming_cols = incoming_grad[0].length;
+
+            if (parent_rows == incoming_rows) {
+
+                double[] row_sums = new double[incoming_rows];
+                for (int i = 0; i < incoming_rows; i++) {
+
+                    for (int j = 0; j < incoming_cols; j++)
+                        row_sums[i] += incoming_grad[i][j];
+
+                }
+
+                Double[][] out = new Double[parent_rows][parent_cols];
+
+                for (int i = 0; i < parent_rows; i++)
+                    for (int j = 0; j < parent_cols; j++)
+                        out[i][j] = row_sums[i];
+
+                return out;
+
+            } else {
+
+                double[] col_sums = new double[incoming_cols];
+                for (int j = 0; j < incoming_cols; j++) {
+
+                    for (int i = 0; i < incoming_rows; i++)
+                        col_sums[j] += incoming_grad[i][j];
+
+                }
+
+                Double[][] out = new Double[parent_rows][parent_cols];
+
+                for (int i = 0; i < parent_rows; i++)
+                    for (int j = 0; j < parent_cols; j++)
+                        out[i][j] = col_sums[j];
+
+                return out;
+
+            }
+
+        }
+
+    }
+
 
     // scalar operations
     
