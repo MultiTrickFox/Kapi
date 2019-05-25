@@ -1,10 +1,11 @@
 import java.util.ArrayList;
 
 
-class K_tensor{
+class K_tensor {
+
 
     Double[][] matrix;
-    Double[][] grads;
+    Double[][] grad;
 
     ArrayList<K_tensor> parents;
     ArrayList<K_tensor> childs;
@@ -13,6 +14,9 @@ class K_tensor{
 
     static ArrayList<K_tensor> graph = new ArrayList<>();
 
+    boolean requires_grad = false;
+
+
     // constructor
 
     K_tensor(Double[][] matrix) {
@@ -20,13 +24,7 @@ class K_tensor{
         this.matrix = matrix;
 
         int[] size = K_math.size(matrix);
-        this.grads = new Double[size[0]][size[1]];
-        for (int i = 0; i < size[0]; i++) {
-            Double[] row = grads[i];
-            for (int j = 0; j < size[1]; j++) {
-                row[j] = 0.0;
-            }
-        }
+        this.grad = K_math.zeros(size[0], size[1]);
 
         this.parents = new ArrayList<>();
         this.childs = new ArrayList<>();
@@ -36,27 +34,61 @@ class K_tensor{
 
     }
 
-    K_tensor() { }
+    K_tensor() { } static K_tensor instance = new K_tensor();
+
 
     // matrix initializers
 
     static K_tensor zeros(int hm_rows, int hm_cols) {
 
-        return new K_tensor(K_math.zeros(hm_rows, hm_cols));
+        K_tensor tensor = new K_tensor(K_math.zeros(hm_rows, hm_cols));
+
+        tensor.requires_grad = true;
+
+        return tensor;
 
     }
 
     static K_tensor ones(int hm_rows, int hm_cols) {
 
-        return new K_tensor(K_math.ones(hm_rows, hm_cols));
+        K_tensor tensor = new K_tensor(K_math.ones(hm_rows, hm_cols));
+
+        tensor.requires_grad = true;
+
+        return tensor;
 
     }
 
     static K_tensor randn(int hm_rows, int hm_cols) {
 
-        return new K_tensor(K_math.randn(hm_rows, hm_cols));
+        K_tensor tensor = new K_tensor(K_math.randn(hm_rows, hm_cols));
+
+        tensor.requires_grad = true;
+
+        return tensor;
 
     }
+
+    static K_tensor identity(int hm_rows, int hm_cols) {
+
+        K_tensor tensor = new K_tensor(K_math.identity(hm_rows, hm_cols));
+
+        tensor.requires_grad = true;
+
+        return tensor;
+
+    }
+
+    static K_tensor constants(int hm_rows, int hm_cols, double val) {
+
+        K_tensor tensor = new K_tensor(K_math.constants(hm_rows, hm_cols, val));
+
+        tensor.requires_grad = true;
+
+        return tensor;
+
+    }
+
 
     // matrix operations
 
@@ -102,7 +134,7 @@ class K_tensor{
         int[] size_p2 = K_math.size(t2.matrix);
 
         tensor.parent_grads.add(K_math.ones(size_p1[0],size_p1[1]));
-        tensor.parent_grads.add(K_math.constant(size_p2[0],size_p2[1], -1));
+        tensor.parent_grads.add(K_math.constants(size_p2[0],size_p2[1], -1));
 
         return tensor;
 
@@ -120,7 +152,21 @@ class K_tensor{
 
         return tensor;
 
-    } static K_tensor sub(Double[][] t1, K_tensor t2) { return sub(t2, t1); }
+    }
+
+    static K_tensor sub(Double[][] t2, K_tensor t1) {
+
+        K_tensor tensor = new K_tensor(K_math.sub(t1.matrix, t2));
+
+        define_child_tensor(tensor, t1);
+
+        int[] size_p1 = K_math.size(t1.matrix);
+
+        tensor.parent_grads.add(K_math.ones(size_p1[0],size_p1[1]));
+
+        return tensor;
+
+    }
 
     static K_tensor mul(K_tensor t1, K_tensor t2) {
 
@@ -150,29 +196,21 @@ class K_tensor{
 
     static K_tensor div(K_tensor t1, K_tensor t2) {
 
-        K_tensor tensor = new K_tensor(K_math.div(t1.matrix, t2.matrix));
-
-        define_child_tensor(tensor, t1);
-        define_child_tensor(tensor, t2);
-
-        tensor.parent_grads.add(K_math.div_scalar(1, t2.matrix));
-        tensor.parent_grads.add(t1.matrix);
-
-        return tensor;
+        return mul(t1, pow(t2, -1));
 
     }
-//
-//    static K_tensor div(K_tensor t1, Double[][] t2) {
-//
-//        K_tensor tensor = new K_tensor(K_math.div(t1.matrix, t2));
-//
-//        define_child_tensor(tensor, t1);
-//
-//        tensor.parent_grads.add(K_math.div_scalar(1, t2));
-//
-//        return tensor;
-//
-//    } static K_tensor div(Double[][] t1, K_tensor t2) { return div(t2, t1); }
+
+    static K_tensor div(K_tensor t1, Double[][] t2) {
+
+        return mul(t1, K_math.pow(t2, -1));
+
+    }
+
+    static K_tensor div(Double[][] t2, K_tensor t1) {
+
+        return mul(t2, pow(t1, -1));
+
+    }
 
     static K_tensor matmul(K_tensor t1, K_tensor t2) {
 
@@ -202,7 +240,22 @@ class K_tensor{
 
         return tensor;
 
-    } static K_tensor matmul(Double[][] t1, K_tensor t2) { return matmul(t2, t1); }
+    }
+
+    static K_tensor matmul(Double[][] t1, K_tensor t2) {
+
+        Double[][][] results = K_math.matmul_wgrads(t1, t2.matrix);
+
+        K_tensor tensor = new K_tensor(results[0]);
+
+        define_child_tensor(tensor, t2);
+
+        tensor.parent_grads.add(results[2]);
+
+        return tensor;
+
+    }
+
 
     // scalar operations
 
@@ -222,15 +275,7 @@ class K_tensor{
 
     static K_tensor sub(K_tensor t1, Double s) {
 
-        K_tensor tensor = new K_tensor(K_math.sub_scalar(t1.matrix, s));
-
-        define_child_tensor(tensor, t1);
-
-        int[] size_p1 = K_math.size(t1.matrix);
-
-        tensor.parent_grads.add(K_math.ones(size_p1[0],size_p1[1]));
-
-        return tensor;
+        return add(t1, -s);
 
     }
 
@@ -242,7 +287,7 @@ class K_tensor{
 
         int[] size_p1 = K_math.size(t1.matrix);
 
-        tensor.parent_grads.add(K_math.constant(size_p1[0],size_p1[1], -1));
+        tensor.parent_grads.add(K_math.constants(size_p1[0],size_p1[1], -1));
 
         return tensor;
 
@@ -256,41 +301,34 @@ class K_tensor{
 
         int[] size_p1 = K_math.size(t1.matrix);
 
-        tensor.parent_grads.add(K_math.constant(size_p1[0],size_p1[1], s));
+        tensor.parent_grads.add(K_math.constants(size_p1[0],size_p1[1], s));
 
         return tensor;
 
     } static K_tensor mul(Double s, K_tensor t1) { return mul(t1, s); }
 
-//    static K_tensor div_scalar(Double s, K_tensor t1) {
-//
-//        K_tensor tensor = new K_tensor(K_math.div_scalar(s, t1.matrix));
-//
-//        define_child_tensor(tensor, t1);
-//
-//        int[] size_p1 = K_math.size(t1.matrix);
-//
-//        tensor.parent_grads.add(K_math.constant(size_p1[0], size_p1[1], ??))
-//
-//        return tensor;
-//
-//    }
+    static K_tensor div(Double s, K_tensor t1) {
+
+        return mul(s, pow(t1, -1));
+
+    } static K_tensor div(K_tensor t1, Double s) { return mul(t1, 1/s); }
+
 
     // graph helpers
 
-    private static void define_same_tensor(K_tensor t1, K_tensor t2) { // if problematic, interchange w/ new-node w/ back_grad = ones()
+    private static void define_same_tensor(K_tensor t_new, K_tensor t_old) { // if problematic, interchange w/ new-node w/ back_grad = ones()
 
-        t1.childs.addAll(t2.childs);
-        t1.parents.addAll(t2.parents);
-        t1.parent_grads = t2.parent_grads;
+        t_new.childs.addAll(t_old.childs);
+        t_new.parents.addAll(t_old.parents);
 
-        for (K_tensor child : t2.childs)
-            child.parents.add(t1);
+        for (K_tensor child : t_old.childs)
+            child.parents.add(t_new);
 
-        for (K_tensor parent : t2.parents)
-            parent.childs.add(t1);
+        for (K_tensor parent : t_old.parents)
+            parent.childs.add(t_new);
 
-        t1.grads = t2.grads;
+        t_new.parent_grads = t_old.parent_grads;
+        t_new.grad = t_old.grad;
 
     }
 
@@ -301,7 +339,7 @@ class K_tensor{
 
     }
 
-    static void make_grads(K_tensor t1) {
+    static double make_grads(K_tensor t1) {
 
         t1 = sum(sum(t1,0),1);
 
@@ -313,11 +351,14 @@ class K_tensor{
 
         }
 
+        return t1.matrix[0][0];
+
     }
 
     private static void make_grads(K_tensor t1, Double[][] incoming) {
 
-        t1.grads = K_math.add(t1.grads, incoming);
+        if (t1.requires_grad)
+            t1.grad = K_math.add(t1.grad, incoming);
 
         int parent_ctr = -1;
         for (K_tensor parent : t1.parents) {
@@ -333,7 +374,7 @@ class K_tensor{
 
         for (K_tensor tensor : graph)
 
-            tensor.grads = K_math.zeros(size(tensor, 0), size(tensor, 1));
+            tensor.grad = K_math.zeros(size(tensor, 0), size(tensor, 1));
 
         graph = new ArrayList<>();
 
@@ -341,13 +382,14 @@ class K_tensor{
 
     static K_tensor scalar_tensor(K_tensor t1, int[] sizes) {
 
-        K_tensor tensor = new K_tensor(K_math.constant(sizes[0], sizes[1], t1.matrix[0][0]));
+        K_tensor tensor = new K_tensor(K_math.constants(sizes[0], sizes[1], t1.matrix[0][0]));
 
         define_same_tensor(tensor, t1);
 
         return tensor;
 
     }
+
 
     // tensor helpers
 
@@ -425,6 +467,8 @@ class K_tensor{
 
         define_same_tensor(tensor, t1);
 
+//        define_child_tensor(tensor, t1);
+//
 //        int[] size_p1 = K_math.size(t1.matrix);
 //
 //        tensor.parent_grads.add(K_math.ones(size_p1[0], size_p1[1]));
@@ -546,29 +590,25 @@ class K_tensor{
 //
 //    }
 
-    static K_tensor cross_entropy(K_tensor t1, K_tensor t2) {
+    static K_tensor cross_entropy(K_tensor t_lbl, K_tensor t_out) {
 
-        return mul(-1.0, mul(t1, log(t2)));
+        return mul(-1.0, mul(t_lbl, log(t_out)));
 
     }
 
-    static K_tensor mean_square(K_tensor t1, K_tensor t2) {
+    static K_tensor mean_square(K_tensor t_lbl, K_tensor t_out) {
 
-        return pow(sub(t1, t2), 2);
+        return pow(sub(t_lbl, t_out), 2);
 
     }
 
     static K_tensor softmax(K_tensor t1) { // stable softmax ; x - np.max(x) first.
-
-        assert t1.matrix.length == 1 || t1.matrix[0].length == 1;
 
         K_tensor exp = exp(t1);
 
         K_tensor exp_sum = scalar_tensor(sum(sum(exp, 0), 1), size(t1));
 
         return div(exp, exp_sum);
-
-        // return div(exp(t1), scalar_tensor(sum(sum(exp(t1), 0), 1), size(t1)));
 
     }
 

@@ -216,22 +216,29 @@ class K_math {
 
         assert hm_cols1 == hm_rows2;
 
-        Double[] row, row_a, row_b, row_grad_a;
+        Double[] row_out, row_a, row_grad_a;
         double e_a, e_b;
 
         for (int i = 0; i < hm_rows1; i++) {
-            row = out[i];
+
+            row_out = out[i];
             row_a = a[i];
             row_grad_a = grads_a[i];
+
             for (int j = 0; j < hm_cols2; j++) {
-                row[j] = 0.0;
+
+                row_out[j] = 0.0;
+
                 for (int k = 0; k < hm_cols1; k++) {
-                    row_b = b[k];
+
                     e_a = row_a[k];
-                    e_b = row_b[j];
-                    row[j] += e_a * e_b;
-                    row_grad_a[k] += e_a * e_b * b[k][j];
-                    grads_b[k][j] += e_a * e_b * row_a[k];
+                    e_b = b[k][j];
+
+                    row_out[j] += e_a * e_b;
+
+                    row_grad_a[k] += e_b;
+                    grads_b[k][j] += e_a;
+
                 }
 
             }
