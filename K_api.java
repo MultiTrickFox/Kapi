@@ -5,10 +5,8 @@ import java.util.concurrent.*;
 
 class K_api {
 
-    static K_math math_base = new K_math();
 
-
-    K_api(){ }
+    K_api(){ } static K_api instance = new K_api();
 
 
     static Object make_model(String model_type, int in_size, int[] hidden_sizes, int out_size) {
@@ -16,6 +14,19 @@ class K_api {
         if (model_type.equals("gru")) return new GRU(in_size,  hidden_sizes, out_size);
         if (model_type.equals("lstm")) return new LSTM(in_size, hidden_sizes, out_size);
         else return null;
+
+    }
+
+    static ArrayList<ArrayList<Double[][]>> load(String source) {
+
+        // todo : do.
+        return null;
+
+    }
+
+    static void save(ArrayList<ArrayList<Double[][]>> model, String destination) {
+
+        // todo : do.
 
     }
 
@@ -30,21 +41,14 @@ class K_api {
 //
 //        }
 //
-//
 //    }
+//
+//    // todo : train_batch
+//
+//        // todo : process_data ; returns grad
+//
+//    // todo : update_model(grad, model)
 
-    static ArrayList<ArrayList<Double[][]>> load(String source) {
-
-        // todo : do.
-        return null;
-
-    }
-
-    static void save(ArrayList<ArrayList<Double[][]>> model, String destination) {
-
-        // todo : do.
-
-    }
 
     private static class R implements Callable<ArrayList<Double[][]>>{
 
@@ -69,7 +73,7 @@ class K_api {
 
             for (int i = 0; i < response.size(); i++)
 
-                loss += math_base.sum(math_base.cross_entropy(response.get(i), output.get(i)));
+                loss += K_math.sum(K_math.cross_entropy(response.get(i), output.get(i)));
 
 
             // TODO : return batch_grads
