@@ -203,123 +203,6 @@ class K_math {
         
     }
 
-    static Double[][][] matmul_wgrads(Double[][] a, Double[][] b) {
-
-        int hm_rows1 = a.length;
-        int hm_cols1 = a[0].length;
-        int hm_rows2 = b.length;
-        int hm_cols2 = b[0].length;
-
-        Double[][] out = new Double[hm_rows1][hm_cols2];
-        Double[][] grads_a = zeros(hm_rows1, hm_cols1);
-        Double[][] grads_b = zeros(hm_rows2, hm_cols2);
-
-        assert hm_cols1 == hm_rows2;
-
-        Double[] row_out, row_a, row_grad_a;
-        double e_a, e_b;
-
-        for (int i = 0; i < hm_rows1; i++) {
-
-            row_out = out[i];
-            row_a = a[i];
-            row_grad_a = grads_a[i];
-
-            for (int j = 0; j < hm_cols2; j++) {
-
-                row_out[j] = 0.0;
-
-                for (int k = 0; k < hm_cols1; k++) {
-
-                    e_a = row_a[k];
-                    e_b = b[k][j];
-
-                    row_out[j] += e_a * e_b;
-
-                    row_grad_a[k] += e_b;
-                    grads_b[k][j] += e_a;
-
-                }
-
-            }
-
-        }
-
-        return new Double[][][]{out, grads_a, grads_b};
-
-    }
-
-    static Double[][] backprop_helper(Double[][] parent_grad, Double[][] incoming_grad) {
-
-        if (parent_grad.length == incoming_grad.length && parent_grad[0].length == incoming_grad[0].length) {
-
-            int hm_rows = parent_grad.length;
-            int hm_cols = parent_grad[0].length;
-            Double[][] out = new Double[hm_rows][hm_cols];
-
-            Double[] row, row_a, row_b;
-
-            for (int i = 0; i < hm_rows; i++) {
-                row = out[i];
-                row_a = parent_grad[i];
-                row_b = incoming_grad[i];
-                for (int j = 0; j < hm_cols; j++)
-                    row[j] = row_a[j] * row_b[j];
-            }
-
-            return out;
-
-        }
-
-        else {
-
-            int parent_rows = parent_grad.length;
-            int parent_cols = parent_grad[0].length;
-            int incoming_rows = incoming_grad.length;
-            int incoming_cols = incoming_grad[0].length;
-
-            if (parent_rows == incoming_rows) {
-
-                double[] row_sums = new double[incoming_rows];
-                for (int i = 0; i < incoming_rows; i++) {
-
-                    for (int j = 0; j < incoming_cols; j++)
-                        row_sums[i] += incoming_grad[i][j];
-
-                }
-
-                Double[][] out = new Double[parent_rows][parent_cols];
-
-                for (int i = 0; i < parent_rows; i++)
-                    for (int j = 0; j < parent_cols; j++)
-                        out[i][j] = row_sums[i];
-
-                return out;
-
-            } else {
-
-                double[] col_sums = new double[incoming_cols];
-                for (int j = 0; j < incoming_cols; j++) {
-
-                    for (int i = 0; i < incoming_rows; i++)
-                        col_sums[j] += incoming_grad[i][j];
-
-                }
-
-                Double[][] out = new Double[parent_rows][parent_cols];
-
-                for (int i = 0; i < parent_rows; i++)
-                    for (int j = 0; j < parent_cols; j++)
-                        out[i][j] = col_sums[j];
-
-                return out;
-
-            }
-
-        }
-
-    }
-
 
     // scalar operations
     
@@ -430,26 +313,14 @@ class K_math {
     
     static Double[][] resize(Double[][] matrix, int[] sizes) {
 
-        Double[][] out = new Double[sizes[0]][sizes[1]];
-
-        Double[] row;
-
-        Double[] vector = matrix2vector(matrix);
-        
-        int ctr = -1;
-        for (int i = 0; i < sizes[0]; i++) {
-            row = out[i];
-            for (int j = 0; j < sizes[1]; j++) {
-
-                ctr++;
-                row[j] = vector[ctr];
-
-            }
-
-        }
+         return vector2matrix(matrix2vector(matrix), sizes);
        
-         return out;
-       
+    }
+
+    static Double[][] resize(Double[][] matrix, int size1, int size2) {
+
+        return resize(matrix, new int[]{size1, size2});
+
     }
     
     static Double[] matrix2vector(Double[][] matrix) {
@@ -491,21 +362,21 @@ class K_math {
     }
     
     static Double[][] transpose(Double[][] matrix) {
-      
+
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
         Double[][] out = new Double[hm_cols][hm_rows];
 
         Double[] row;
 
-        for (int i = 0; i < hm_cols; i++) {
-            row = out[i];
-            for (int j = 0; j < hm_rows; j++)
-                row[j] = matrix[j][i];
+        for (int i = 0; i < matrix.length; i++) {
+            row = matrix[i];
+            for (int j = 0; j < matrix[0].length; j++)
+                out[j][i] = row[j];
         }
 
         return out;
-        
+
     }
 
     static double sum(Double[][] matrix) {
@@ -562,6 +433,47 @@ class K_math {
         }
 
         return out;
+
+    }
+
+
+    // vector operations
+
+    static Double[] vector_mul(Double[] v1, Double[] v2) {
+
+        assert v1.length == v2.length;
+
+        int hm_elements = v1.length;
+        Double[] out = new Double[hm_elements];
+
+        for (int i = 0; i < hm_elements; i++)
+            out[i] = v1[i] * v2[i];
+
+        return out;
+
+    }
+
+    static Double[] vector_add(Double[] v1, Double[] v2) {
+
+        assert v1.length == v2.length;
+
+        int hm_elements = v1.length;
+        Double[] out = new Double[hm_elements];
+
+        for (int i = 0; i < hm_elements; i++)
+            out[i] = v1[i] + v2[i];
+
+        return out;
+
+    }
+
+    static double vector_sum(Double[] v) {
+
+        double doubl = 0;
+
+        for (Double d : v) doubl += d;
+
+        return doubl;
 
     }
 
