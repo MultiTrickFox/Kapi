@@ -58,10 +58,23 @@ public class Main {
 
 
 
-//        K_tensor node_test = K_tensor.matmul(t_in, t_w1);
-//        K_tensor.fill_grads(node_test);
-//        System.out.println("node test 1:  " + t_in.matrix[0][0] + " " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
+//        K_tensor node_test1 = K_tensor.matmul(t_in, t_w1);
+//        K_tensor.fill_grads(node_test1);
 //        K_tensor.empty_grads();
+
+
+//        Double[][] smt = new Double[1][2];
+//        smt[0][0] = 0.2;
+//        smt[0][1] = 0.3;
+//        t_in = new K_tensor(smt);
+//        t_in.requires_grad = true;
+//
+//        K_tensor node_test2 = K_tensor.softmax(t_in); // K_tensor.matmul(K_tensor.sigm(K_tensor.matmul(t_in, t_w1)), t_w2);
+//
+//
+//        K_tensor.fill_grads(node_test2);
+//        K_tensor.empty_grads();
+
 //
 //        node_test = K_tensor.matmul(K_tensor.matmul(t_in, t_w1), t_w2);
 //        K_tensor.fill_grads(node_test);
@@ -71,20 +84,20 @@ public class Main {
 
 
         K_tensor node_out = K_tensor.matmul(t_in, t_w1);
-        K_tensor.fill_grads(node_out);
-        System.out.println("node out " + t_in.grad[0][0] + " " + t_w1.grad[0][0]);
-        K_tensor.empty_grads();
+        //K_tensor.fill_grads(node_out);
+        //System.out.println("node out " + t_in.grad[0][0] + " " + t_w1.grad[0][0]);
+        //K_tensor.empty_grads();
 
 
         K_tensor node_out_gated = K_tensor.sigm(node_out);
-        K_tensor.fill_grads(node_out_gated);
-        System.out.println("node out gated " + t_in.grad[0][0] + " " + t_w1.grad[0][0]);
-        K_tensor.empty_grads();
+        //K_tensor.fill_grads(node_out_gated);
+        //System.out.println("node out gated " + t_in.grad[0][0] + " " + t_w1.grad[0][0]);
+        //K_tensor.empty_grads();
 
 
         K_tensor node_out2 = K_tensor.matmul(node_out_gated, t_w2);
         K_tensor.fill_grads(node_out2);
-        System.out.println("node out 2 " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
+        //System.out.println("node out 2 " + t_in.grad[0][0] + " " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
         K_tensor.empty_grads();
 
 

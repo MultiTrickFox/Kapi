@@ -76,7 +76,7 @@ class K_math {
 
         return out;
 
-    }
+    } static Double[][] identity(int hm_rowcols) { return identity(hm_rowcols, hm_rowcols); }
 
     static Double[][] constants(int hm_rows, int hm_cols, double value) {
 
@@ -359,7 +359,7 @@ class K_math {
         
          return out;
       
-    }
+    } static Double[][] vector2matrix(Double[] vector, int size1, int size2) { return vector2matrix(vector, new int[]{size1, size2}); }
     
     static Double[][] transpose(Double[][] matrix) {
 
@@ -661,5 +661,6 @@ class K_math {
         return out;
         
     }
+
 
 }
