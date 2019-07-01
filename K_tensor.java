@@ -364,6 +364,20 @@ class K_tensor {
 
             }
 
+        } else if (t1.type.equals("resize")) {
+
+            K_tensor parent = t1.parents.get(0);
+
+            int[] parent_size = size(parent);
+
+            fill_grads(parent, K_math.resize(incoming, parent_size));
+
+        } else if (t1.type.equals("transpose")) {
+
+            K_tensor parent = t1.parents.get(0);
+
+            fill_grads(parent, K_math.transpose(incoming));
+
         } else {
 
             int parent_ctr = -1;
@@ -477,25 +491,33 @@ class K_tensor {
 
     }
 
-//    static K_tensor resize(K_tensor t1, int[] sizes) {
-//
-//        K_tensor tensor = new K_tensor(K_math.resize(t1.matrix, sizes));
-//
-//        define_as_same(tensor, t1);
-//
-//        return tensor;
-//
-//    }
+    static K_tensor resize(K_tensor t1, int[] sizes) {
 
-//    static K_tensor transpose(K_tensor t1) {
-//
-//        K_tensor tensor = new K_tensor(K_math.transpose(t1.matrix));
-//
-//        define_as_same(tensor, t1);
-//
-//        return tensor;
-//
-//    }
+        K_tensor tensor = new K_tensor(K_math.resize(t1.matrix, sizes));
+
+        define_as_child(tensor, t1);
+
+        tensor.type = "resize";
+
+        tensor.parent_grads.add(null);
+
+        return tensor;
+
+    } static K_tensor resize(K_tensor t1, int size1, int size2) { return resize(t1, new int[]{size1, size2}); }
+
+    static K_tensor transpose(K_tensor t1) {
+
+        K_tensor tensor = new K_tensor(K_math.transpose(t1.matrix));
+
+        define_as_child(tensor, t1);
+
+        tensor.type = "transpose";
+
+        tensor.parent_grads.add(null);
+
+        return tensor;
+
+    }
 
     static K_tensor sum(K_tensor t1) {
 
