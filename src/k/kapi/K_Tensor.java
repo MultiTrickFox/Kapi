@@ -413,7 +413,7 @@ class K_Tensor {
 
     }
 
-    static void release_grads() {
+    static void release_graph() { // TODO : for rnns?
 
         empty_grads();
 
@@ -451,8 +451,6 @@ class K_Tensor {
 
             }
 
-            System.out.println();
-
             return out;
 
         }
@@ -482,8 +480,6 @@ class K_Tensor {
                 }
 
             }
-
-            System.out.println();
 
             return out;
 
