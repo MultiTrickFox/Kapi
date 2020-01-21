@@ -1,88 +1,90 @@
+package k.kapi;
+
 import java.util.Random;
 
 
-class K_math {
+class K_Math {
 
 
     static Random random = new Random(System.currentTimeMillis());
 
-    static double mean = 0;
-    static double dev = 1;
+    static float mean = 0;
+    static float dev = 1;
 
 
     // constructor
-    
-    K_math() { } static K_math instance = new K_math();
+
+    K_Math() { } static K_Math instance = new K_Math();
 
 
     // matrix initializers
-    
-    static Double[][] zeros(int hm_rows, int hm_cols) {
-      
-        Double[][] out = new Double[hm_rows][hm_cols];
 
-        Double[] row;
-        
+    static Float[][] zeros(int hm_rows, int hm_cols) {
+
+        Float[][] out = new Float[hm_rows][hm_cols];
+
+        Float[] row;
+
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = 0.0;
+                row[j] = 0.0f;
         }
 
         return out;
-        
-    }
-    
-    static Double[][] ones(int hm_rows, int hm_cols) {
-      
-        Double[][] out = new Double[hm_rows][hm_cols];
 
-        Double[] row;
-        
+    }
+
+    static Float[][] ones(int hm_rows, int hm_cols) {
+
+        Float[][] out = new Float[hm_rows][hm_cols];
+
+        Float[] row;
+
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = 1.0;
+                row[j] = 1.0f;
         }
-        
-        return out;
-        
-    }
-    
-    static Double[][] randn(int hm_rows, int hm_cols) {
-      
-        Double[][] out = new Double[hm_rows][hm_cols];
 
-        Double[] row;
-        
+        return out;
+
+    }
+
+    static Float[][] randn(int hm_rows, int hm_cols) {
+
+        Float[][] out = new Float[hm_rows][hm_cols];
+
+        Float[] row;
+
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = random.nextGaussian() * dev + mean;
+                row[j] = (float) random.nextGaussian() * dev + mean;
         }
-        
+
         return out;
-        
+
     }
 
-    static Double[][] identity(int hm_rows, int hm_cols) {
+    static Float[][] identity(int hm_rows, int hm_cols) {
 
         assert hm_rows == hm_cols;
 
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
         for (int i = 0; i < hm_rows; i++)
-            out[i][i] = 1.0;
+            out[i][i] = 1.0f;
 
         return out;
 
-    } static Double[][] identity(int hm_rowcols) { return identity(hm_rowcols, hm_rowcols); }
+    } static Float[][] identity(int hm_rowcols) { return identity(hm_rowcols, hm_rowcols); }
 
-    static Double[][] constants(int hm_rows, int hm_cols, double value) {
+    static Float[][] constants(int hm_rows, int hm_cols, float value) {
 
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row;
+        Float[] row;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
@@ -97,13 +99,13 @@ class K_math {
 
     // matrix operations
 
-    static Double[][] add(Double[][] a, Double[][] b) {
-      
+    static Float[][] add(Float[][] a, Float[][] b) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a, row_b;
+        Float[] row, row_a, row_b;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
@@ -112,19 +114,19 @@ class K_math {
             for (int j = 0; j < hm_cols; j++)
                 row[j] = row_a[j] + row_b[j];
         }
-        
+
         return out;
-        
+
     }
 
-    static Double[][] sub(Double[][] a, Double[][] b) {
-      
+    static Float[][] sub(Float[][] a, Float[][] b) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a, row_b;
-              
+        Float[] row, row_a, row_b;
+
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = a[i];
@@ -134,16 +136,16 @@ class K_math {
         }
 
         return out;
-        
+
     }
-    
-    static Double[][] mul(Double[][] a, Double[][] b) {
-      
+
+    static Float[][] mul(Float[][] a, Float[][] b) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a, row_b;
+        Float[] row, row_a, row_b;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
@@ -154,17 +156,17 @@ class K_math {
         }
 
         return out;
-        
+
     }
-    
-    static Double[][] div(Double[][] a, Double[][] b) {
-      
+
+    static Float[][] div(Float[][] a, Float[][] b) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a, row_b;
-      
+        Float[] row, row_a, row_b;
+
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = a[i];
@@ -172,66 +174,66 @@ class K_math {
             for (int j = 0; j < hm_cols; j++)
                 row[j] = row_a[j] / row_b[j];
         }
-        
+
         return out;
-        
+
     }
-    
-    static Double[][] matmul(Double[][] a, Double[][] b) {
-      
+
+    static Float[][] matmul(Float[][] a, Float[][] b) {
+
         int hm_rows1 = a.length;
         int hm_cols1 = a[0].length;
         int hm_rows2 = b.length;
         int hm_cols2 = b[0].length;
-        Double[][] out = new Double[hm_rows1][hm_cols2];
+        Float[][] out = new Float[hm_rows1][hm_cols2];
 
         assert hm_cols1 == hm_rows2;
 
-        Double[] row, row_a;
-        
+        Float[] row, row_a;
+
         for (int i = 0; i < hm_rows1; i++) {
             row = out[i];
             row_a = a[i];
             for (int j = 0; j < hm_cols2; j++) {
-                row[j] = 0.0;
+                row[j] = 0.0f;
                 for (int k = 0; k < hm_cols1; k++)
                     row[j] += row_a[k] * b[k][j];
             }
         }
-                
+
         return out;
-        
+
     }
 
 
     // scalar operations
-    
-    static Double[][] mul_scalar(double b, Double[][] a) {
-      
+
+    static Float[][] mul_scalar(float b, Float[][] a) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
-      
+        Float[] row, row_a;
+
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = a[i];
             for (int j = 0; j < hm_cols; j++)
                 row[j] = row_a[j] * b;
         }
-                
-        return out;
-        
-    } static Double[][] mul_scalar(Double[][] a, double b) { return mul_scalar(b, a); }
 
-    static Double[][] div_scalar(double b, Double[][] a) {
+        return out;
+
+    } static Float[][] mul_scalar(Float[][] a, float b) { return mul_scalar(b, a); }
+
+    static Float[][] div_scalar(float b, Float[][] a) {
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
@@ -242,16 +244,16 @@ class K_math {
 
         return out;
 
-    } static Double[][] div_scalar(Double[][] a, double b) { return mul_scalar(1/b, a); }
-    
-    static Double[][] sub_scalar(double b, Double[][] a) {
-      
+    } static Float[][] div_scalar(Float[][] a, float b) { return mul_scalar(1/b, a); }
+
+    static Float[][] sub_scalar(float b, Float[][] a) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
-                
+        Float[] row, row_a;
+
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = a[i];
@@ -260,16 +262,16 @@ class K_math {
         }
 
         return out;
-        
+
     }
-    
-    static Double[][] sub_scalar(Double[][] a, double b) {
-      
+
+    static Float[][] sub_scalar(Float[][] a, float b) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
@@ -277,18 +279,18 @@ class K_math {
             for (int j = 0; j < hm_cols; j++)
                 row[j] = row_a[j] - b;
         }
-        
+
         return out;
-        
+
     }
-    
-    static Double[][] add_scalar(double b, Double[][] a) {
-      
+
+    static Float[][] add_scalar(float b, Float[][] a) {
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
@@ -298,39 +300,39 @@ class K_math {
         }
 
         return out;
-        
-    } static Double[][] add_scalar(Double[][] a, double b) { return add_scalar(b, a); }
+
+    } static Float[][] add_scalar(Float[][] a, float b) { return add_scalar(b, a); }
 
 
     // helpers
 
-    static int size(Double[][] matrix, int dim) {
+    static int size(Float[][] matrix, int dim) {
 
         if (dim == 0) return matrix.length;
         else          return matrix[0].length;
 
-    } static int[] size(Double[][] matrix) { return new int[]{matrix.length,matrix[0].length}; }
-    
-    static Double[][] resize(Double[][] matrix, int[] sizes) {
+    } static int[] size(Float[][] matrix) { return new int[]{matrix.length,matrix[0].length}; }
 
-         return vector2matrix(matrix2vector(matrix), sizes);
-       
+    static Float[][] resize(Float[][] matrix, int[] sizes) {
+
+        return vector2matrix(matrix2vector(matrix), sizes);
+
     }
 
-    static Double[][] resize(Double[][] matrix, int size1, int size2) {
+    static Float[][] resize(Float[][] matrix, int size1, int size2) {
 
         return resize(matrix, new int[]{size1, size2});
 
     }
-    
-    static Double[] matrix2vector(Double[][] matrix) {
-      
+
+    static Float[] matrix2vector(Float[][] matrix) {
+
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[] out = new Double[matrix.length * matrix[0].length];
+        Float[] out = new Float[matrix.length * matrix[0].length];
 
         int ctr = -1;
-        for (Double[] row : matrix) {
+        for (Float[] row : matrix) {
             for (int j = 0; j < hm_cols; j++) {
 
                 ctr++;
@@ -338,17 +340,17 @@ class K_math {
 
             }
         }
-        
-         return out;
-      
-    }
-    
-    static Double[][] vector2matrix(Double[] vector, int[] sizes) {
 
-        Double[][] out = new Double[sizes[0]][sizes[1]];
+        return out;
+
+    }
+
+    static Float[][] vector2matrix(Float[] vector, int[] sizes) {
+
+        Float[][] out = new Float[sizes[0]][sizes[1]];
 
         int ctr = -1;
-        for (Double[] row : out) {
+        for (Float[] row : out) {
             for (int j = 0; j < sizes[1]; j++) {
 
                 ctr++;
@@ -356,18 +358,18 @@ class K_math {
 
             }
         }
-        
-         return out;
-      
-    } static Double[][] vector2matrix(Double[] vector, int size1, int size2) { return vector2matrix(vector, new int[]{size1, size2}); }
-    
-    static Double[][] transpose(Double[][] matrix) {
+
+        return out;
+
+    } static Float[][] vector2matrix(Float[] vector, int size1, int size2) { return vector2matrix(vector, new int[]{size1, size2}); }
+
+    static Float[][] transpose(Float[][] matrix) {
 
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_cols][hm_rows];
+        Float[][] out = new Float[hm_cols][hm_rows];
 
-        Double[] row;
+        Float[] row;
 
         for (int i = 0; i < matrix.length; i++) {
             row = matrix[i];
@@ -379,29 +381,29 @@ class K_math {
 
     }
 
-    static double sum(Double[][] matrix) {
+    static float sum(Float[][] matrix) {
 
-        double sum = 0;
+        float sum = 0;
 
-        for (Double[] row : matrix)
-            for (Double col : row)
+        for (Float[] row : matrix)
+            for (Float col : row)
                 sum += col;
 
         return sum;
 
     }
 
-    static Double[][] sum(Double[][] matrix, int dim) {
+    static Float[][] sum(Float[][] matrix, int dim) {
 
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = null;
+        Float[][] out = null;
 
         if (dim == 0) {
 
-            out = new Double[1][hm_cols];
-            Double[] row = out[0];
-            double col_sum;
+            out = new Float[1][hm_cols];
+            Float[] row = out[0];
+            float col_sum;
 
             for (int j = 0; j < hm_cols; j++) {
                 col_sum = 0;
@@ -416,15 +418,15 @@ class K_math {
 
         if (dim == 1) {
 
-            out = new Double[hm_rows][1];
-            double row_sum;
+            out = new Float[hm_rows][1];
+            float row_sum;
 
             int i = -1;
-            for (Double[] row : matrix) {
+            for (Float[] row : matrix) {
                 i++;
                 row_sum = 0;
 
-                for (Double e : row)
+                for (Float e : row)
                     row_sum += e;
                 out[i][0] = row_sum;
 
@@ -439,12 +441,12 @@ class K_math {
 
     // vector operations
 
-    static Double[] vector_mul(Double[] v1, Double[] v2) {
+    static Float[] vector_mul(Float[] v1, Float[] v2) {
 
         assert v1.length == v2.length;
 
         int hm_elements = v1.length;
-        Double[] out = new Double[hm_elements];
+        Float[] out = new Float[hm_elements];
 
         for (int i = 0; i < hm_elements; i++)
             out[i] = v1[i] * v2[i];
@@ -453,12 +455,12 @@ class K_math {
 
     }
 
-    static Double[] vector_add(Double[] v1, Double[] v2) {
+    static Float[] vector_add(Float[] v1, Float[] v2) {
 
         assert v1.length == v2.length;
 
         int hm_elements = v1.length;
-        Double[] out = new Double[hm_elements];
+        Float[] out = new Float[hm_elements];
 
         for (int i = 0; i < hm_elements; i++)
             out[i] = v1[i] + v2[i];
@@ -467,11 +469,11 @@ class K_math {
 
     }
 
-    static double vector_sum(Double[] v) {
+    static float vector_sum(Float[] v) {
 
-        double doubl = 0;
+        float doubl = 0;
 
-        for (Double d : v) doubl += d;
+        for (Float d : v) doubl += d;
 
         return doubl;
 
@@ -480,186 +482,186 @@ class K_math {
 
     // special operations
 
-    static Double[][] pow(Double[][] matrix, double power) {
-      
+    static Float[][] pow(Float[][] matrix, float power) {
+
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = matrix[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = Math.pow(row_a[j], power);
-        }
-                
-        return out;
-        
-    }
-
-    static Double[][] exp(Double[][] matrix) {
-
-        int hm_rows = matrix.length;
-        int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
-
-        Double[] row, row_a;
-
-        for (int i = 0; i < hm_rows; i++) {
-            row = out[i];
-            row_a = matrix[i];
-            for (int j = 0; j < hm_cols; j++)
-                row[j] = Math.exp(row_a[j]);
+                row[j] = (float) Math.pow(row_a[j], power);
         }
 
         return out;
 
     }
 
-    static Double[][] log(Double[][] matrix) {
+    static Float[][] exp(Float[][] matrix) {
 
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = matrix[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = Math.log(row_a[j]);
+                row[j] = (float) Math.exp(row_a[j]);
         }
 
         return out;
 
     }
 
-    static Double[][] sigm(Double[][] matrix) {
-      
+    static Float[][] log(Float[][] matrix) {
+
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = matrix[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = (1.0 / (1 + Math.exp(-row_a[j])));
+                row[j] = (float) Math.log(row_a[j]);
         }
 
         return out;
-       
+
     }
-    
-    static Double[][] tanh(Double[][] matrix) {
-      
+
+    static Float[][] sigm(Float[][] matrix) {
+
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = matrix[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = Math.tanh(row_a[j]);
+                row[j] = (float) (1.0 / (1 + Math.exp(-row_a[j])));
         }
 
         return out;
-       
+
     }
 
-    static Double[][] cross_entropy(Double[][] target, Double[][] output) {
+    static Float[][] tanh(Float[][] matrix) {
+
+        int hm_rows = matrix.length;
+        int hm_cols = matrix[0].length;
+        Float[][] out = new Float[hm_rows][hm_cols];
+
+        Float[] row, row_a;
+
+        for (int i = 0; i < hm_rows; i++) {
+            row = out[i];
+            row_a = matrix[i];
+            for (int j = 0; j < hm_cols; j++)
+                row[j] = (float) Math.tanh(row_a[j]);
+        }
+
+        return out;
+
+    }
+
+    static Float[][] cross_entropy(Float[][] target, Float[][] output) {
 
         int hm_rows = target.length;
         int hm_cols = target[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a, row_b;
+        Float[] row, row_a, row_b;
 
         for (int i = 0; i < hm_rows; i++) {
             row = out[i];
             row_a = target[i];
             row_b = output[i];
             for (int j = 0; j < hm_cols; j++)
-                row[j] = -(row_a[j]*Math.log(row_b[j]));
+                row[j] = (float) -(row_a[j]*Math.log(row_b[j]));
         }
 
         return out;
-   
+
     }
-    
-    static Double[][] softmax(Double[][] matrix) {
-        
+
+    static Float[][] softmax(Float[][] matrix) {
+
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        Double[] row, row_a;
+        Float[] row, row_a;
 
-        double sum = 0;
+        float sum = 0;
 
         for (int i = 0; i < hm_rows; i++) {
             row_a = matrix[i];
             for (int j = 0; j < hm_cols; j++)
                 sum += Math.exp(row_a[j]);
         }
-      
+
         if (hm_rows == 1) {
 
             row = out[0];
             row_a = matrix[0];
 
             for (int k = 0; k < hm_cols; k++)
-                row[k] = Math.exp(row_a[k]) / sum;
+                row[k] = (float) Math.exp(row_a[k]) / sum;
         }
-        
+
         if (hm_cols == 1)
 
             for (int k = 0; k < hm_rows; k++)
-                out[k][0] = Math.exp(matrix[k][0])/sum;
-        
+                out[k][0] = (float) Math.exp(matrix[k][0])/sum;
+
         return out;
-        
+
     }
-    
-    static Double[][] softmax(Double[][] matrix, int index_begin, int index_end) {
-        
+
+    static Float[][] softmax(Float[][] matrix, int index_begin, int index_end) {
+
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
-        Double[][] out = new Double[hm_rows][hm_cols];
+        Float[][] out = new Float[hm_rows][hm_cols];
 
-        double sum = 0;
-      
+        float sum = 0;
+
         if (hm_rows == 1) {
 
-            Double[] row = out[0];
-            Double[] row_a = matrix[0];
+            Float[] row = out[0];
+            Float[] row_a = matrix[0];
 
             for (int k = index_begin; k < index_end; k++)
                 sum += Math.exp(row_a[k]);
             for (int k = index_begin; k < index_end; k++)
-                row[k] = Math.exp(row_a[k])/sum;
-           
+                row[k] = (float) Math.exp(row_a[k])/sum;
+
         }
-            
+
         if (hm_cols == 1) {
-          
+
             for (int k = index_begin; k < index_end; k++)
                 sum += Math.exp(matrix[k][0]);
             for (int k = index_begin; k < index_end; k++)
-                out[k][0] = Math.exp(matrix[k][0])/sum;
-          
+                out[k][0] = (float) Math.exp(matrix[k][0])/sum;
+
         }
-            
+
         return out;
-        
+
     }
 
 
