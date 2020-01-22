@@ -157,31 +157,29 @@ class K_Model {
 
     // FeedForward
 
-//    static List<K_Layer.Dense> FeedForward(int in_size, int[] hidden_sizes, int out_size, String activation_fn) {
-//
-//        List<K_Layer.Dense> model = new ArrayList<>();
-//
-//        int ctr = -1;
-//        for (int hidden_size : hidden_sizes) {
-//            ctr++;
-//
-//            if (ctr == 0)
-//
-//                model.add(new K_Layer.Dense(in_size, hidden_size, activation_fn));
-//
-//            else
-//
-//                model.add(new K_Layer.Dense(hidden_sizes[ctr - 1], hidden_size, activation_fn));
-//
-//        }
-//
-//        model.add(new K_Layer.Dense(hidden_sizes[hidden_sizes.length-1], out_size, activation_fn));
-//
-//        return model;
-//
-//    }
+    static List<Object> FeedForward(int in_size, int[] hidden_sizes, int out_size, String activation_fn) {
 
-    // as List<Object> reserved for Generic_Model. (conflicting java sign.)
+        List<Object> model = new ArrayList<>();
+
+        int ctr = -1;
+        for (int hidden_size : hidden_sizes) {
+            ctr++;
+
+            if (ctr == 0)
+
+                model.add(new K_Layer.Dense(in_size, hidden_size, activation_fn));
+
+            else
+
+                model.add(new K_Layer.Dense(hidden_sizes[ctr - 1], hidden_size, activation_fn));
+
+        }
+
+        model.add(new K_Layer.Dense(hidden_sizes[hidden_sizes.length-1], out_size, activation_fn));
+
+        return model;
+
+    }
 
 
     // Recurrent
@@ -531,7 +529,7 @@ class K_Api{
                 for (Float[][] weight_grad : layer_grad) {
                     ctr2++;
 
-                    batch_grad_layer[ctr] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+                    batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
 
                 }
 
@@ -707,7 +705,7 @@ class K_Api{
                 for (Float[][] weight_grad : layer_grad) {
                     ctr2++;
 
-                    batch_grad_layer[ctr] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+                    batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
 
                 }
 

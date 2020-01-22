@@ -7,9 +7,9 @@ import java.util.List;
 public class Main {
 
 
-    static int in_size = 5;
-    static int[] hiddens =  new int[]{20};
-    static int out_size = 5;
+    static int in_size = 3;
+    static int[] hiddens =  new int[]{2};
+    static int out_size = 3;
 
     static int hm_epochs = 20;
     static float learning_rate = .1f;
@@ -32,7 +32,7 @@ public class Main {
 
     static void test_generic_model() {
 
-        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],out_size},new String[]{"dense","lstm"}, "sigm");
+        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],out_size},new String[]{"lstm","dense"}, "sigm");
 
         ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(in_size, out_size, hm_data, seq_len);
 
@@ -73,21 +73,21 @@ public class Main {
     }
 
 
-//    static Float[][] inp = new Float[3][3];
-//    static {
-//        inp[0][0] = 0.2f;
-//        inp[0][1] = 0.3f;
-//        inp[0][2] = 0.1f;
-//        inp[1][0] = 0.1f;
-//        inp[1][1] = 0.4f;
-//        inp[1][2] = 0.7f;
-//        inp[2][0] = 0.1f;
-//        inp[2][1] = 0.6f;
-//        inp[2][2] = 0.4f;
-//    }
-//    static K_Tensor t_in = new K_Tensor(inp);
-//    static Float[][] target = K_Math.constants(3,3, 3);
-//    static K_Tensor t_trg = new K_Tensor(target);
+    static Float[][] inp = new Float[3][3];
+    static {
+        inp[0][0] = 0.2f;
+        inp[0][1] = 0.3f;
+        inp[0][2] = 0.1f;
+        inp[1][0] = 0.1f;
+        inp[1][1] = 0.4f;
+        inp[1][2] = 0.7f;
+        inp[2][0] = 0.1f;
+        inp[2][1] = 0.6f;
+        inp[2][2] = 0.4f;
+    }
+    static K_Tensor t_in = new K_Tensor(inp);
+    static Float[][] target = K_Math.constants(3,3, 3);
+    static K_Tensor t_trg = new K_Tensor(target);
 
 //    static void test_lstm() {
 //
@@ -102,15 +102,15 @@ public class Main {
 //
 //    }
 
-//    static void test_feedforw() {
-//
-//        List<LayerDense> model = K_Api.FeedForward(in_size, new int[]{hidden_size}, out_size, activation_fn);
-//
-//        K_Tensor t_out = K_Api.propogate(model, t_in);
-//
-//        System.out.println(t_out);
-//
-//    }
+    static void test_feedforw() {
+
+        List<Object> model = K_Model.FeedForward(in_size, new int[]{12}, out_size, activation_fn);
+
+        K_Tensor[] t_out = K_Model.propogate(model, new K_Tensor[]{t_in});
+
+        System.out.println(t_out[0]);
+
+    }
 
 //    static void test_layer() {
 //
