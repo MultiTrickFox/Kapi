@@ -33,7 +33,7 @@ class K_Math {
 
         return out;
 
-    }
+    } static Float[][] zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); } // TODO : complete this for all
 
     static Float[][] ones(int hm_rows, int hm_cols) {
 

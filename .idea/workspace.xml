@@ -3,14 +3,18 @@
   <component name="ChangeListManager">
     <list default="true" id="b944cc16-28c9-40bd-94c1-fa6bff1b0778" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Math.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Math.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Trainer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Trainer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Trainer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/LayerDense.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/LayerLSTM.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Api.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Api.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Api.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_APi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Math.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Math.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/Main.java" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,22 +30,20 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="InvalidFacetManager">
+    <ignored-facets>
+      <facet id="Kapi2/invalid/Python" />
+    </ignored-facets>
+  </component>
   <component name="ProjectId" id="1WiEyCQ233eVyFnuQlcb6Ansh4g" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-  </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
   </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
@@ -78,21 +80,58 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/test.py</url>
-          <line>33</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="WindowStateProjectService">
+    <state x="430" y="196" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1579691209894">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state x="430" y="196" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/44.22.1396.878@44.22.1396.878" timestamp="1579691209894" />
+    <state width="494" height="466" key="DebuggerActiveHint" timestamp="1579693180356">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="494" height="466" key="DebuggerActiveHint/44.22.1396.878@44.22.1396.878" timestamp="1579693180356" />
+    <state width="1353" height="214" key="GridCell.Tab.0.bottom" timestamp="1579695280549">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="214" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579695280549" />
+    <state width="1353" height="214" key="GridCell.Tab.0.center" timestamp="1579695280549">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="214" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579695280549" />
+    <state width="1353" height="214" key="GridCell.Tab.0.left" timestamp="1579695280548">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="214" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579695280548" />
+    <state width="1353" height="214" key="GridCell.Tab.0.right" timestamp="1579695280549">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="214" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579695280549" />
+    <state width="1353" height="286" key="GridCell.Tab.1.bottom" timestamp="1579693207495">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="286" key="GridCell.Tab.1.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579693207495" />
+    <state width="1353" height="286" key="GridCell.Tab.1.center" timestamp="1579693207494">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="286" key="GridCell.Tab.1.center/44.22.1396.878@44.22.1396.878" timestamp="1579693207494" />
+    <state width="1353" height="286" key="GridCell.Tab.1.left" timestamp="1579693207493">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="286" key="GridCell.Tab.1.left/44.22.1396.878@44.22.1396.878" timestamp="1579693207493" />
+    <state width="1353" height="286" key="GridCell.Tab.1.right" timestamp="1579693207494">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1353" height="286" key="GridCell.Tab.1.right/44.22.1396.878@44.22.1396.878" timestamp="1579693207494" />
+    <state x="407" y="212" width="670" height="676" key="search.everywhere.popup" timestamp="1579694635735">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state x="407" y="212" width="670" height="676" key="search.everywhere.popup/44.22.1396.878@44.22.1396.878" timestamp="1579694635735" />
   </component>
 </project>

@@ -19,7 +19,7 @@ class K_Tensor {
     String type;
 
 
-    static ArrayList<K_Tensor> graph = new ArrayList<>();
+    //static ArrayList<K_Tensor> graph = new ArrayList<>();
 
 
     // constructor
@@ -38,7 +38,7 @@ class K_Tensor {
         this.type = "tensor";
         this.requires_grad = false;
 
-        graph.add(this);
+        //graph.add(this);
 
     }
 
@@ -405,27 +405,27 @@ class K_Tensor {
 
     }
 
-    static void empty_grads() {
+//    static void empty_grads() {
+//
+//        for (K_Tensor tensor : graph)
+//
+//            tensor.grad = K_Math.zeros(size(tensor, 0), size(tensor, 1));
+//
+//    }
 
-        for (K_Tensor tensor : graph)
-
-            tensor.grad = K_Math.zeros(size(tensor, 0), size(tensor, 1));
-
-    }
-
-    static void release_graph() {
-
-        for (K_Tensor tensor : graph) {
-
-            tensor.parents = new ArrayList<>();
-            tensor.childs = new ArrayList<>();
-            tensor.parent_grads = new ArrayList<>();
-
-        }
-
-        graph = new ArrayList<>();
-
-    }
+//    static void release_graph() {
+//
+//        for (K_Tensor tensor : graph) {
+//
+//            tensor.parents = new ArrayList<>();
+//            tensor.childs = new ArrayList<>();
+//            tensor.parent_grads = new ArrayList<>();
+//
+//        }
+//
+//        graph = new ArrayList<>();
+//
+//    }
 
     private static Float[][] matmul_backwards(Float[][] parent_grad, Float[][] incoming_grad, String for_matrix) {
 
