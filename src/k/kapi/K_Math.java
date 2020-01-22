@@ -33,7 +33,7 @@ class K_Math {
 
         return out;
 
-    } static Float[][] zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); } // TODO : complete this for all
+    } static Float[][] zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); }
 
     static Float[][] ones(int hm_rows, int hm_cols) {
 
@@ -49,7 +49,7 @@ class K_Math {
 
         return out;
 
-    }
+    } static Float[][] ones(int[] sizes) { return ones(sizes[0], sizes[1]); }
 
     static Float[][] randn(int hm_rows, int hm_cols) {
 
@@ -65,7 +65,7 @@ class K_Math {
 
         return out;
 
-    }
+    } static Float[][] randn(int[] sizes) { return randn(sizes[0], sizes[1]); }
 
     static Float[][] identity(int hm_rows, int hm_cols) {
 
@@ -94,7 +94,7 @@ class K_Math {
 
         return out;
 
-    }
+    } static Float[][] constants(int[] sizes, int constant) { return constants(sizes[0], sizes[1], constant); }
 
 
     // matrix operations
