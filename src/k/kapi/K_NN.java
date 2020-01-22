@@ -358,7 +358,23 @@ class K_Model {
     
     
     // Generic FNs
-    
+
+
+    static K_Tensor propogate(List<Object> model, K_Tensor timestep) {
+
+        for (Object layer : model)
+
+            if (layer instanceof K_Layer.Dense)
+
+                timestep = K_Layer.propogate((K_Layer.Dense) layer, timestep);
+
+            else if (layer instanceof K_Layer.LSTM)
+
+                timestep = K_Layer.propogate((K_Layer.LSTM) layer, timestep);
+
+        return timestep;
+
+    }
 
     static K_Tensor[] propogate(List<Object> model, K_Tensor[] incoming) {
 
@@ -489,6 +505,40 @@ class K_Model {
                 K_Layer.clear_grad((K_Layer.LSTM) layer);
 
     }
+
+    static ArrayList<K_Tensor> collect_states(List<Object> model) {
+
+        ArrayList<K_Tensor> layer_states = new ArrayList<>();
+
+        for (Object layer : model) {
+
+            if (layer instanceof K_Layer.Dense)
+
+                layer_states.add(null);
+
+            else if (layer instanceof K_Layer.LSTM)
+
+                layer_states.add(((K_Layer.LSTM) layer).state);
+
+        }
+
+        return layer_states;
+
+    }
+
+    static void apply_states(List<Object> model, ArrayList<K_Tensor> states) {
+
+        int ctr = -1;
+        for (Object layer : model) {
+            ctr++;
+
+            if (layer instanceof K_Layer.LSTM)
+
+                ((K_Layer.LSTM) layer).state = states.get(ctr);
+
+        }
+
+    }
     
 
 }
@@ -533,7 +583,7 @@ class K_Api{
 
         try {
 
-            List<Future<ArrayList<Float[][]>>> promises = pool.invokeAll(tasks);
+            List<Future<ArrayList<Float[][]>>> promises = threadpool.invokeAll(tasks);
 
             for (Future promise : promises)
 
@@ -699,7 +749,7 @@ class K_Api{
 
         return layers;
 
-    } ; static List<Object> Generate_Generic_Model(int[] sizes, String[] layer_types) { return Generate_Generic_Model(sizes, layer_types, "relu"); }
+    } ; static List<Object> Generate_Generic_Model(int[] sizes, String[] layer_types) { return Generate_Generic_Model(sizes, layer_types, "elu"); }
 
 
     static Object[] loss_and_grad_from_datapoint(List<Object> model, ArrayList<Float[][]> datapoint) {
@@ -724,7 +774,7 @@ class K_Api{
 
     }
 
-    private static class DatapointTask implements Callable<ArrayList<Float[][]>> {
+    static class DatapointTask implements Callable<ArrayList<Float[][]>> {
 
         Object[] result;
 
@@ -767,7 +817,7 @@ class K_Api{
 
     }
 
-    static ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    public static ExecutorService threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     static Object[] loss_and_grad_from_batch(List<Object> model, ArrayList<ArrayList<Float[][]>> batch) {
 
@@ -783,7 +833,7 @@ class K_Api{
 
         try {
 
-            List<Future<ArrayList<Float[][]>>> promises = pool.invokeAll(tasks);
+            List<Future<ArrayList<Float[][]>>> promises = threadpool.invokeAll(tasks);
 
             for (Future promise : promises)
 
@@ -941,6 +991,28 @@ class K_Utils {
 
     }
 
+    static ArrayList<ArrayList<ArrayList<ArrayList<Float[][]>>>> batchify2(ArrayList<ArrayList<ArrayList<Float[][]>>> dataset, int batch_size) {
+
+        ArrayList<ArrayList<ArrayList<ArrayList<Float[][]>>>> batches = new ArrayList<>();
+
+        ArrayList<ArrayList<ArrayList<Float[][]>>> batch;
+
+        for (int i = 0; i < dataset.size()/batch_size; i++) {
+
+            batch = new ArrayList<>();
+
+            for (int j = 0; j < batch_size; j++)
+
+                batch.add(dataset.get(i*batch_size+j));
+
+            batches.add(batch);
+
+        }
+
+        return batches;
+
+    }
+
     static ArrayList<ArrayList<ArrayList<Float[][]>>> split_dataset(ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio) {
 
         K_Utils.shuffle(dataset);
@@ -988,7 +1060,7 @@ class K_Utils {
 
                 break;
 
-            case "enc_dec":
+            case "encdec":
 
                 for (int t = 0; t < response.length; t++)
 
@@ -1039,6 +1111,244 @@ class K_Utils {
                 model_copy.add(new K_Layer.LSTM((K_Layer.LSTM) layer));
 
         return model_copy;
+
+    }
+
+
+}
+
+
+class K_Custom {
+
+
+    static class Encoder_Decoder {
+
+
+        List<Object> encoder;
+
+        List<Object> decoder;
+
+
+        Encoder_Decoder(int[] enc_sizes, String[] enc_layer_types, int[] dec_sizes, String[] dec_layer_types, String dense_act_fn) {
+
+            this.encoder = K_Api.Generate_Generic_Model(enc_sizes,enc_layer_types,dense_act_fn);
+            this.decoder = K_Api.Generate_Generic_Model(dec_sizes,dec_layer_types,dense_act_fn);
+
+        }
+
+        Encoder_Decoder(int[] encdec_sizes, String[] encdec_layer_types, String dense_act_fn) {
+
+            this.encoder = K_Api.Generate_Generic_Model(encdec_sizes,encdec_layer_types,dense_act_fn);
+            this.decoder = K_Api.Generate_Generic_Model(encdec_sizes,encdec_layer_types,dense_act_fn);
+
+        }
+
+        Encoder_Decoder(int[] encdec_sizes, String[] encdec_layer_types) {
+
+            this.encoder = K_Api.Generate_Generic_Model(encdec_sizes,encdec_layer_types);
+            this.decoder = K_Api.Generate_Generic_Model(encdec_sizes,encdec_layer_types);
+
+        }
+
+        Encoder_Decoder() { }
+
+
+    }
+
+
+    static K_Tensor[] respond_to(Encoder_Decoder model, K_Tensor[] incoming_sequence, int outgoing_length) {
+
+        K_Tensor[] enc_outgoing_response = K_Model.propogate(model.encoder, incoming_sequence);
+
+        ArrayList<K_Tensor> states = K_Model.collect_states(model.encoder);
+
+        K_Model.apply_states(model.decoder, states);
+
+        ArrayList<K_Tensor> dec_outgoing_response = new ArrayList<>();
+
+        // TODO : here, do this if dec_in == enc_out
+
+        K_Tensor prev_response_step = enc_outgoing_response[enc_outgoing_response.length-1];
+
+        // else :
+
+        // K_Math.zeros
+
+        for (int t = 0; t < outgoing_length; t++) {
+
+            prev_response_step = K_Model.propogate(model.decoder, prev_response_step);
+
+            dec_outgoing_response.add(prev_response_step);
+
+        }
+
+        K_Tensor[] return_array = new K_Tensor[dec_outgoing_response.size()];
+
+        for (int i = 0; i < return_array.length; i++)
+
+            return_array[i] = dec_outgoing_response.get(i);
+
+        return return_array;
+
+    }
+
+
+    static Object[] loss_and_grad_from_datapoint(Encoder_Decoder model, ArrayList<Float[][]> datapoint, ArrayList<Float[][]> label) {
+
+        K_Tensor[] datapoint_t = new K_Tensor[datapoint.size()];
+
+        int ctr = -1;
+        for (Float[][] timestep : datapoint) {
+            ctr++;
+
+            datapoint_t[ctr] = new K_Tensor(timestep);
+
+        }
+
+        K_Tensor[] response = respond_to(model, datapoint_t, label.size());
+
+        K_Tensor[] label_t = new K_Tensor[label.size()];
+
+        for (int i = 0; i < label_t.length; i++)
+
+            label_t[i] = new K_Tensor(label.get(i));
+
+        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(response, label_t, "encdec"));
+
+        ArrayList<ArrayList<Float[][][]>> grads = new ArrayList<>();
+        grads.add(K_Model.collect_grads(model.encoder));
+        grads.add(K_Model.collect_grads(model.decoder));
+
+        return new Object[]{loss, grads};
+
+    }
+
+
+    static class DatapointTask implements Callable<ArrayList<Float[][]>> {
+
+        Object[] result;
+
+        Encoder_Decoder model;
+
+        ArrayList<ArrayList<Float[][]>> datapoint;
+
+        DatapointTask(Encoder_Decoder model, ArrayList<ArrayList<Float[][]>> datapoint) {
+
+            this.model = new Encoder_Decoder();
+            this.model.encoder = K_Utils.copy(model.encoder);
+            this.model.decoder = K_Utils.copy(model.decoder);
+
+            this.datapoint = datapoint;
+
+        }
+
+        @Override
+        public ArrayList<Float[][]> call() {
+
+            this.result = loss_and_grad_from_datapoint(this.model, this.datapoint.get(0), this.datapoint.get(1));
+
+            return null;
+
+        }
+
+    }
+
+    // static ExecutorService threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    static Object[] loss_and_grad_from_batch(Encoder_Decoder model, ArrayList<ArrayList<ArrayList<Float[][]>>> batch) {
+
+        float batch_loss = 0;
+
+        ArrayList<Float[][][]> batch_grad_enc = K_Model.collect_grads(model.encoder);
+        ArrayList<Float[][][]> batch_grad_dec = K_Model.collect_grads(model.decoder);
+
+        ArrayList<DatapointTask> tasks = new ArrayList<>();
+
+        for (ArrayList<ArrayList<Float[][]>> data : batch)
+
+            tasks.add(new DatapointTask(model, data));
+
+        try {
+
+            List<Future<ArrayList<Float[][]>>> promises = K_Api.threadpool.invokeAll(tasks);
+
+            for (Future promise : promises)
+
+                while(!promise.isDone()) {System.out.println("Empty promises..");}
+
+            float loss;
+            ArrayList<ArrayList<Float[][][]>> grads;
+
+            for (int i = 0; i < batch.size(); i++)
+
+                try {
+
+                    loss = (float) tasks.get(i).result[0];
+                    grads = (ArrayList<ArrayList<Float[][][]>>) tasks.get(i).result[1];
+
+                    batch_loss += loss;
+
+                    int ctr = -1;
+                    for (Float[][][] layer_grad : grads.get(0)) {
+                        ctr++;
+
+                        Float[][][] batch_grad_layer = batch_grad_enc.get(ctr);
+
+                        int ctr2 = -1;
+                        for (Float[][] weight_grad : layer_grad) {
+                            ctr2++;
+
+                            batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+
+                        }
+
+                    }
+
+                    ctr = -1;
+                    for (Float[][][] layer_grad : grads.get(1)) {
+                        ctr++;
+
+                        Float[][][] batch_grad_layer = batch_grad_dec.get(ctr);
+
+                        int ctr2 = -1;
+                        for (Float[][] weight_grad : layer_grad) {
+                            ctr2++;
+
+                            batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+
+                        }
+
+                    }
+
+                }
+
+                catch (Exception e) { e.printStackTrace(); }
+
+        } catch (Exception e) { e.printStackTrace(); return null; }
+
+        return new Object[]{batch_loss, new Object[]{batch_grad_enc, batch_grad_dec}};
+
+    }
+
+    static float train_on_batch(Encoder_Decoder model, ArrayList<ArrayList<ArrayList<Float[][]>>> batch, float learning_rate) {
+
+        Object[] result = loss_and_grad_from_batch(model, batch);
+
+        float loss = (float) result[0];
+
+        ArrayList<Float[][][]> batch_grad_enc = (ArrayList<Float[][][]>) ((Object[]) result[1])[0];
+        ArrayList<Float[][][]> batch_grad_dec = (ArrayList<Float[][][]>) ((Object[]) result[1])[1];
+
+        K_Model.apply_grads(model.encoder, batch_grad_enc);
+        K_Model.apply_grads(model.decoder, batch_grad_dec);
+
+        K_Model.learn_from_grads(model.encoder, learning_rate/batch.size());
+        K_Model.learn_from_grads(model.decoder, learning_rate/batch.size());
+
+        K_Model.clear_grads(model.encoder);
+        K_Model.clear_grads(model.decoder);
+
+        return loss;
 
     }
 

@@ -37,7 +37,32 @@ public class Main {
 
         //test_trainer();
 
-        test_biggest_trainer();
+        //test_biggest_trainer();
+
+        test_custom();
+
+    }
+
+    static void test_custom() {
+
+        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(7, 7, 5, 2);
+
+        K_Custom.Encoder_Decoder encdec = new K_Custom.Encoder_Decoder(
+                    new int[]{7,4,3,7},
+                    new String[]{"dense","lstm","dense"},
+                    "elu");
+
+        //Object[] results = K_Custom.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
+
+        //System.out.println(results);
+
+        float loss = K_Custom.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+
+        System.out.println(loss);
+
+        loss = K_Custom.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+
+        System.out.println(loss);
 
     }
 
@@ -258,6 +283,46 @@ public class Main {
                 sequence.add(K_Math.randn(1, in_size));
 
             dataset.add(sequence);
+
+        }
+
+        return dataset;
+
+    }
+
+
+    static ArrayList<ArrayList<ArrayList<Float[][]>>> create_fake_data2(int in_size, int out_size, int hm_data, int max_length) {
+
+        assert in_size == out_size;
+
+        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = new ArrayList<>();
+
+        ArrayList<ArrayList<Float[][]>> datapoint;
+
+        ArrayList<Float[][]> sequence_x;
+        ArrayList<Float[][]> sequence_y;
+
+        for (int i = 0; i < hm_data; i++) {
+
+            datapoint = new ArrayList<>();
+
+            sequence_x = new ArrayList<>();
+
+            for (int t = 0; t < max_length; t++)
+
+                sequence_x.add(K_Math.randn(1, in_size));
+
+            datapoint.add(sequence_x);
+
+            sequence_y = new ArrayList<>();
+
+            for (int t = 0; t < max_length; t++)
+
+                sequence_y.add(K_Math.randn(1, in_size));
+
+            datapoint.add(sequence_y);
+
+            dataset.add(datapoint);
 
         }
 
