@@ -7,9 +7,9 @@ import java.util.List;
 public class Main {
 
 
-    static int in_size = 3;
-    static int[] hiddens =  new int[]{2};
-    static int out_size = 3;
+    static int in_size = 10;
+    static int[] hiddens =  new int[]{18, 12};
+    static int out_size = 10;
 
     static int hm_epochs = 20;
     static float learning_rate = .1f;
@@ -32,7 +32,7 @@ public class Main {
 
     static void test_generic_model() {
 
-        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],out_size},new String[]{"lstm","dense"}, "sigm");
+        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],hiddens[1],out_size},new String[]{"dense","lstm","dense"}, "sigm");
 
         ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(in_size, out_size, hm_data, seq_len);
 

@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.concurrent.*;
+
 
 class K_Layer {
 
@@ -376,8 +378,11 @@ class K_Model {
                 layers_grads.add(new Float[][][]{
 
                         layer_.wf1.grad, layer_.wf2.grad,
+
                         layer_.wk1.grad, layer_.wk2.grad,
+
                         layer_.wi1.grad, layer_.wi2.grad,
+
                         layer_.ws1.grad, layer_.ws2.grad,
 
                 });
@@ -502,6 +507,8 @@ class K_Api{
         return new Object[]{loss, grads};
 
     }
+
+
 
     static Object[] loss_and_grad_from_batch(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> batch) {
 
@@ -679,39 +686,103 @@ class K_Api{
 
     }
 
+    private static class DatapointTask implements Callable<ArrayList<Float[][]>> {
+
+        Object[] result;
+
+        List<Object> model;
+
+        ArrayList<Float[][]> datapoint;
+
+        DatapointTask(List<Object> model, ArrayList<Float[][]> datapoint) {
+
+            this.model = K_Util.copy(model);
+
+            this.datapoint = datapoint;
+
+        }
+
+        @Override
+        public ArrayList<Float[][]> call() {
+
+            this.result = loss_and_grad_from_datapoint(this.model, this.datapoint);
+
+            return null;
+
+        }
+
+    }
+
+    static ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    static private boolean is_done(List<Future<ArrayList<Double[][]>>> promises) {
+
+        for (Future promise : promises)
+
+            if (promise != null)
+
+                try {
+                    if (promise.get() == null) return false;
+                }
+                catch (InterruptedException e) { e.printStackTrace(); return false; }
+                catch (ExecutionException e) { e.printStackTrace(); }
+
+        return true;
+
+    }
+
     static Object[] loss_and_grad_from_batch(List<Object> model, ArrayList<ArrayList<Float[][]>> batch) {
 
         float batch_loss = 0;
 
         ArrayList<Float[][][]> batch_grad = K_Model.collect_grads(model);
 
-        for (ArrayList<Float[][]> sample : batch) {
+        ArrayList<DatapointTask> tasks = new ArrayList<>();
 
-            Object[] result = loss_and_grad_from_datapoint(K_Util.copy(model), sample);
+        for (ArrayList<Float[][]> data : batch)
 
-            // parallelize here.
+            tasks.add(new DatapointTask(model, data));
 
+        try {
 
+            List<Future<ArrayList<Float[][]>>> promises = pool.invokeAll(tasks);
 
-            batch_loss += (float) result[0]; // TODO : this section comes after parallel
+            for (Future promise : promises)
 
-            int ctr = -1;
-            for (Float[][][] layer_grad : (ArrayList<Float[][][]>) result[1]) {
-                ctr++;
+                while(!promise.isDone()) {System.out.println("Empty promises..");}
 
-                Float[][][] batch_grad_layer = batch_grad.get(ctr);
+            float loss;
+            ArrayList<Float[][][]> layer_grads;
 
-                int ctr2 = -1;
-                for (Float[][] weight_grad : layer_grad) {
-                    ctr2++;
+            for (int i = 0; i < batch_grad.size(); i++)
 
-                    batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+                try {
+
+                    loss = (float) tasks.get(i).result[0];
+                    layer_grads = (ArrayList<Float[][][]>) tasks.get(i).result[1];
+
+                    batch_loss += loss;
+
+                    int ctr = -1;
+                    for (Float[][][] layer_grad : layer_grads) {
+                        ctr++;
+
+                        Float[][][] batch_grad_layer = batch_grad.get(ctr);
+
+                        int ctr2 = -1;
+                        for (Float[][] weight_grad : layer_grad) {
+                            ctr2++;
+
+                            batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+
+                        }
+
+                    }
 
                 }
+                catch (Exception e) { e.printStackTrace(); }
 
-            }
-
-        }
+        } catch (Exception e) { e.printStackTrace(); return null; }
 
         return new Object[]{batch_loss, batch_grad};
 
@@ -799,13 +870,13 @@ class K_Api{
 class K_Util {
 
 
-    static void xavierize(List<K_Layer.Dense> model) {
+    static void xavierize(ArrayList<K_Layer.LSTM> model) {
 
 //        layer.w = ...; // TODO : do
 
     }
 
-    static void xavierize(ArrayList<K_Layer.LSTM> model) {
+    static void xavierize(List<Object> model) {
 
 //        layer.w = ...; // TODO : do
 

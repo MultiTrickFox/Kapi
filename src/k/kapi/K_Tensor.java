@@ -655,7 +655,7 @@ class K_Tensor {
 
     } static K_Tensor mean_square(K_Tensor t_out, Float[][] t_lbl) { return mean_square(t_lbl, t_out); }
 
-//    static K_tensor softmax(K_tensor t1) { // stable softmax ; x - np.max(x) first.
+//    static K_tensor softmax(K_tensor t1) { // stable softmax ; x - np.max(x) first. // TODO: open up softmax & cross entropy
 //
 //        K_tensor exp = exp(t1);
 //
@@ -687,32 +687,6 @@ class K_Tensor {
 //        return cross_entropy(t_lbl, softmax(t_out));
 //
 //    }
-
-
-    // extra
-
-    K_Tensor vcat(ArrayList<K_Tensor> values) {
-
-        int hm_rows = K_Math.size(values.get(0).matrix,0);
-        int hm_cols = 0;
-        for (K_Tensor value : values)
-            hm_cols += K_Math.size(value.matrix,1);
-
-        Float[][] cat = new Float[hm_rows][hm_cols];
-
-        K_Tensor cat_tensor = new K_Tensor(cat);
-
-        cat_tensor.requires_grad = true;
-
-
-        // TODO : Do.
-
-        return cat_tensor;
-
-
-    }
-
-    // todo ;; hcat
 
 
 }
