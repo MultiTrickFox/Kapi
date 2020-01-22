@@ -1,6 +1,7 @@
 package k.kapi;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -11,6 +12,8 @@ public class Main {
 
     static int hm_epochs = 20;
     static float learning_rate = .1f;
+
+    static int batch_size = 10;
 
     static int hidden_size = 10;
 
@@ -38,31 +41,58 @@ public class Main {
 
     public static void main(String[] args) {
 
-        test_model();
+        test_training_loop();
 
     }
 
-    static void test_model() {
+    static void test_training_loop() {
 
-        ArrayList<K_Layer> model = K_NN.FeedForward(in_size, new int[]{hidden_size}, out_size, activation_fn);
+        ArrayList<K_Tensor[]> dataset = K_Trainer.create_fake_data(in_size, out_size, 100);
 
-        K_Tensor t_out = K_NN.propogate(model, t_in);
+        ArrayList<LayerLSTM> model = K_Api.LSTM(in_size, new int[]{hidden_size}, out_size);
 
-        System.out.println(t_out);
+        for (int i = 0; i < hm_epochs; i++)
 
-    }
+            for (K_Tensor[][] batch : K_Trainer.batchify(dataset, batch_size))
 
-    static void test_layer() {
-
-        K_Layer layer1 = new K_Layer(in_size, hidden_size, "sigm");
-        K_Layer layer2 = new K_Layer(hidden_size, out_size, "sigm");
-
-        K_Tensor out1 = K_NN.propogate(layer1, t_in);
-        K_Tensor out2 = K_NN.propogate(layer2, out1);
-
-        System.out.println(out2);
+                K_Trainer.batch_train(model, batch, learning_rate);
 
     }
+
+//    static void test_lstm() {
+//
+//        K_Tensor input = K_Tensor.randn(1, in_size);
+//        K_Tensor label = K_Tensor.randn(1, out_size);
+//
+//        ArrayList<LayerLSTM> model = K_Api.LSTM(in_size, new int[]{hidden_size}, out_size);
+//
+//        K_Tensor t_out = K_Api.propogate(model, input);
+//
+//        System.out.println(t_out);
+//
+//    }
+
+//    static void test_feedforw() {
+//
+//        List<LayerDense> model = K_Api.FeedForward(in_size, new int[]{hidden_size}, out_size, activation_fn);
+//
+//        K_Tensor t_out = K_Api.propogate(model, t_in);
+//
+//        System.out.println(t_out);
+//
+//    }
+
+//    static void test_layer() {
+//
+//        LayerDense layer1 = new LayerDense(in_size, hidden_size, "sigm");
+//        LayerDense layer2 = new LayerDense(hidden_size, out_size, "sigm");
+//
+//        K_Tensor out1 = K_Api.propogate(layer1, t_in);
+//        K_Tensor out2 = K_Api.propogate(layer2, out1);
+//
+//        System.out.println(out2);
+//
+//    }
 
     static void test_diff() {
 

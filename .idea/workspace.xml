@@ -2,14 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b944cc16-28c9-40bd-94c1-fa6bff1b0778" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/k/kapi/K_Neural.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/k/kapi/K_Api.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_NN.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Neuron.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Network.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Neural.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/Main.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
