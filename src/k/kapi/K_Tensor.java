@@ -550,7 +550,7 @@ class K_Tensor {
 
         return tensor;
 
-    } // TODO : dim version.
+    }
 
 
     // special operations
@@ -634,6 +634,34 @@ class K_Tensor {
             row2 = tensor.matrix[i];
             for (int j = 0; j < size_p1[1]; j++)
                 row1[j] = row2[j] * (1 - row2[j]);
+
+        }
+
+        tensor.parent_grads.add(parent_grad);
+
+        return tensor;
+
+    }
+
+    static K_Tensor elu(K_Tensor t1) {
+
+        K_Tensor tensor = new K_Tensor(K_Math.elu(t1.matrix));
+
+        define_as_child(tensor, t1);
+
+        int[] size_p1 = K_Math.size(t1.matrix);
+
+        Float[][] parent_grad = new Float[size_p1[0]][size_p1[1]];
+
+        Float[] row1, row2;
+
+        for (int i = 0; i < size_p1[0]; i++) {
+            row1 = parent_grad[i];
+            row2 = tensor.matrix[i];
+            for (int j = 0; j < size_p1[1]; j++)
+                row1[j] = row2[j] >= 0 ? 1 : row2[j] +1;
+
+                //row1[j] = row2[j] >= 0 ? row2[j] : (float) Math.exp(row2[j]) -1;
 
         }
 

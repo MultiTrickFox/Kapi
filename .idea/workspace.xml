@@ -3,16 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="b944cc16-28c9-40bd-94c1-fa6bff1b0778" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api$DatapointTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api$DatapointTask.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$Dense.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$Dense.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$LSTM.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$LSTM.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Model.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Model.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Util.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Util.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Math.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Math.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_APi.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_NN.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Math.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Math.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_NN.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_NN.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -101,22 +98,22 @@
       <screen x="44" y="22" width="1396" height="878" />
     </state>
     <state width="494" height="466" key="DebuggerActiveHint/44.22.1396.878@44.22.1396.878" timestamp="1579705987798" />
-    <state width="1354" height="238" key="GridCell.Tab.0.bottom" timestamp="1579715153348">
+    <state width="1354" height="264" key="GridCell.Tab.0.bottom" timestamp="1579716529446">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="238" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579715153348" />
-    <state width="1354" height="238" key="GridCell.Tab.0.center" timestamp="1579715153345">
+    <state width="1354" height="264" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579716529446" />
+    <state width="1354" height="264" key="GridCell.Tab.0.center" timestamp="1579716529445">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="238" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579715153345" />
-    <state width="1354" height="238" key="GridCell.Tab.0.left" timestamp="1579715153344">
+    <state width="1354" height="264" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579716529445" />
+    <state width="1354" height="264" key="GridCell.Tab.0.left" timestamp="1579716529444">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="238" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579715153344" />
-    <state width="1354" height="238" key="GridCell.Tab.0.right" timestamp="1579715153347">
+    <state width="1354" height="264" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579716529444" />
+    <state width="1354" height="264" key="GridCell.Tab.0.right" timestamp="1579716529445">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="238" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579715153347" />
+    <state width="1354" height="264" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579716529445" />
     <state width="1353" height="286" key="GridCell.Tab.1.bottom" timestamp="1579708376283">
       <screen x="44" y="22" width="1396" height="878" />
     </state>

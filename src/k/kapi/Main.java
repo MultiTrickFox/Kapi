@@ -34,11 +34,13 @@ public class Main {
 
     static void test_generic_model() {
 
-        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],hiddens[1],out_size},new String[]{"dense","lstm","dense"}, "sigm");
+        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],hiddens[1],out_size},new String[]{"dense","lstm","dense"}, "elu");
 
         ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(in_size, out_size, hm_data, seq_len);
 
         K_Api.train_on_dataset(model, dataset, batch_size, learning_rate, hm_epochs);
+        
+        //K_Api.loss_and_grad_from_datapoint(model, K_Util.shuffle(dataset).get(0));
 
     }
 

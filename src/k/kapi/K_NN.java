@@ -49,12 +49,14 @@ class K_Layer {
             case "tanh":
                 return K_Tensor.tanh(out);
 
-            //case "relu": // todo : do someday
-            //return K_Tensor.relu(out)
+            case "elu":
+                return K_Tensor.elu(out);
+
+            default:
+                System.out.println("Available act_fn params: sigm/tanh/elu, not " + layer.act_fn);
+                return out;
 
         }
-
-        return null;
 
     }
 
@@ -708,7 +710,7 @@ class K_Api{
                     break;
 
                 default:
-                    System.out.println("Available layer types: dense/lstm");
+                    System.out.println("Available layer params: dense/lstm, not " + layer_type);
 
             }
 

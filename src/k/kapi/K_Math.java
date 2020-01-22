@@ -577,6 +577,25 @@ class K_Math {
 
     }
 
+    static Float[][] elu(Float[][] matrix) {
+
+        int hm_rows = matrix.length;
+        int hm_cols = matrix[0].length;
+        Float[][] out = new Float[hm_rows][hm_cols];
+
+        Float[] row, row_a;
+
+        for (int i = 0; i < hm_rows; i++) {
+            row = out[i];
+            row_a = matrix[i];
+            for (int j = 0; j < hm_cols; j++)
+                row[j] = row_a[j] >= 0 ? row_a[j] : (float) Math.exp(row_a[j]) -1;
+        }
+
+        return out;
+
+    }
+
     static Float[][] cross_entropy(Float[][] target, Float[][] output) {
 
         int hm_rows = target.length;
