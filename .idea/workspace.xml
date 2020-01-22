@@ -4,15 +4,8 @@
     <list default="true" id="b944cc16-28c9-40bd-94c1-fa6bff1b0778" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Math.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Math.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Trainer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/LayerDense.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/LayerLSTM.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Api.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_APi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Math.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Math.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_APi.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_APi.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -97,22 +90,22 @@
       <screen x="44" y="22" width="1396" height="878" />
     </state>
     <state width="494" height="466" key="DebuggerActiveHint/44.22.1396.878@44.22.1396.878" timestamp="1579693180356" />
-    <state width="1353" height="214" key="GridCell.Tab.0.bottom" timestamp="1579695280549">
+    <state width="1353" height="237" key="GridCell.Tab.0.bottom" timestamp="1579704800903">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1353" height="214" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579695280549" />
-    <state width="1353" height="214" key="GridCell.Tab.0.center" timestamp="1579695280549">
+    <state width="1353" height="237" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579704800903" />
+    <state width="1353" height="237" key="GridCell.Tab.0.center" timestamp="1579704800902">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1353" height="214" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579695280549" />
-    <state width="1353" height="214" key="GridCell.Tab.0.left" timestamp="1579695280548">
+    <state width="1353" height="237" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579704800902" />
+    <state width="1353" height="237" key="GridCell.Tab.0.left" timestamp="1579704800901">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1353" height="214" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579695280548" />
-    <state width="1353" height="214" key="GridCell.Tab.0.right" timestamp="1579695280549">
+    <state width="1353" height="237" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579704800901" />
+    <state width="1353" height="237" key="GridCell.Tab.0.right" timestamp="1579704800903">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1353" height="214" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579695280549" />
+    <state width="1353" height="237" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579704800903" />
     <state width="1353" height="286" key="GridCell.Tab.1.bottom" timestamp="1579693207495">
       <screen x="44" y="22" width="1396" height="878" />
     </state>

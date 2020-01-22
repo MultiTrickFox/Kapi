@@ -1,6 +1,5 @@
 package k.kapi;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +29,6 @@ class K_Layer {
             this.w = new K_Tensor(layer.w.matrix);
             this.w.requires_grad = true;
             this.act_fn = layer.act_fn;
-
-        }
-
-        Dense(int incoming_size, int outgoing_size) {
-
-            this.w = K_Tensor.randn(incoming_size, outgoing_size);
-            this.w.requires_grad = true;
-            this.act_fn = "sigm";
 
         }
 
@@ -166,81 +157,31 @@ class K_Model {
 
     // FeedForward
 
-    static List<K_Layer.Dense> FeedForward(int in_size, int[] hidden_sizes, int out_size, String activation_fn) {
+//    static List<K_Layer.Dense> FeedForward(int in_size, int[] hidden_sizes, int out_size, String activation_fn) {
+//
+//        List<K_Layer.Dense> model = new ArrayList<>();
+//
+//        int ctr = -1;
+//        for (int hidden_size : hidden_sizes) {
+//            ctr++;
+//
+//            if (ctr == 0)
+//
+//                model.add(new K_Layer.Dense(in_size, hidden_size, activation_fn));
+//
+//            else
+//
+//                model.add(new K_Layer.Dense(hidden_sizes[ctr - 1], hidden_size, activation_fn));
+//
+//        }
+//
+//        model.add(new K_Layer.Dense(hidden_sizes[hidden_sizes.length-1], out_size, activation_fn));
+//
+//        return model;
+//
+//    }
 
-        List<K_Layer.Dense> model = new ArrayList<>();
-
-        int ctr = -1;
-        for (int hidden_size : hidden_sizes) {
-            ctr++;
-
-            if (ctr == 0)
-
-                model.add(new K_Layer.Dense(in_size, hidden_size, activation_fn));
-
-            else
-
-                model.add(new K_Layer.Dense(hidden_sizes[ctr - 1], hidden_size, activation_fn));
-
-        }
-
-        model.add(new K_Layer.Dense(hidden_sizes[hidden_sizes.length-1], out_size, activation_fn));
-
-        return model;
-
-    }
-
-    static K_Tensor propogate(List<K_Layer.Dense> model, K_Tensor incoming) {
-
-        for (K_Layer.Dense layer : model)
-
-            incoming = K_Layer.propogate(layer, incoming);
-
-        return incoming;
-
-    }
-
-    static ArrayList<Float[][]> collect_grads(List<K_Layer.Dense> model) {
-
-        ArrayList<Float[][]> layers_grads = new ArrayList<>();
-
-        for (K_Layer.Dense layer : model)
-
-            layers_grads.add(layer.w.grad);
-
-        return layers_grads;
-
-    }
-
-    static void apply_grads(List<K_Layer.Dense> model, ArrayList<Float[][]> grads) {
-
-        Float[][] layer_grads;
-
-        int ctr = -1;
-        for (K_Layer.Dense layer : model) {
-            ctr++;
-
-            layer.w.grad = K_Math.add(layer.w.grad, grads.get(ctr));
-
-        }
-
-    }
-
-    static void learn_from_grads(List<K_Layer.Dense> model, float learning_rate) {
-
-        for (K_Layer.Dense layer : model)
-
-            layer.w.matrix = K_Math.sub(layer.w.matrix, K_Math.mul_scalar(learning_rate, layer.w.grad));
-
-    }
-
-    static void clear_grads(List<K_Layer.Dense> model) {
-
-        for (K_Layer.Dense layer : model)
-
-            K_Layer.clear_grad(layer);
-
-    }
+    // as List<Object> reserved for Generic_Model. (conflicting java sign.)
 
 
     // Recurrent
@@ -389,7 +330,152 @@ class K_Model {
             K_Layer.clear_state(layer);
 
     }
+    
+    
+    // Generic FNs
+    
 
+    static K_Tensor[] propogate(List<Object> model, K_Tensor[] incoming) {
+
+        K_Tensor[] response = new K_Tensor[incoming.length];
+
+        int ctr = -1;
+        for (K_Tensor timestep : incoming) {
+            ctr++;
+
+            for (Object layer : model)
+
+                if (layer instanceof K_Layer.Dense)
+
+                    timestep = K_Layer.propogate((K_Layer.Dense) layer, timestep);
+
+                else if (layer instanceof K_Layer.LSTM)
+
+                    timestep = K_Layer.propogate((K_Layer.LSTM) layer, timestep);
+
+            response[ctr] = timestep;
+
+        }
+
+        return response;
+
+    }
+
+    static ArrayList<Float[][][]> collect_grads(List<Object> model) {
+
+        ArrayList<Float[][][]> layers_grads = new ArrayList<>();
+
+        for (Object layer : model) {
+
+            if (layer instanceof K_Layer.Dense) {
+
+                layers_grads.add(new Float[][][]{((K_Layer.Dense) layer).w.grad});
+
+            } else if (layer instanceof K_Layer.LSTM) {
+
+                K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
+                
+                layers_grads.add(new Float[][][]{
+
+                        layer_.wf1.grad, layer_.wf2.grad,
+                        layer_.wk1.grad, layer_.wk2.grad,
+                        layer_.wi1.grad, layer_.wi2.grad,
+                        layer_.ws1.grad, layer_.ws2.grad,
+
+                });
+
+            }
+
+        }
+        
+        return layers_grads;
+
+    }
+
+    static void apply_grads(List<Object> model, ArrayList<Float[][][]> grads) {
+
+        Float[][][] layer_grads;
+
+        int ctr = -1;
+        for (Object layer : model) {
+            ctr++;
+
+            if (layer instanceof K_Layer.Dense) {
+
+                K_Layer.Dense layer_ = (K_Layer.Dense) layer;
+
+                layer_.w.grad = K_Math.add(layer_.w.grad, grads.get(ctr)[0]);
+
+            } else if (layer instanceof K_Layer.LSTM) {
+
+                K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
+
+                layer_grads = grads.get(ctr);
+
+                layer_.wf1.grad = K_Math.add(layer_.wf1.grad, layer_grads[0]);
+                layer_.wf2.grad = K_Math.add(layer_.wf2.grad, layer_grads[1]);
+
+                layer_.wk1.grad = K_Math.add(layer_.wk1.grad, layer_grads[2]);
+                layer_.wk2.grad = K_Math.add(layer_.wk2.grad, layer_grads[3]);
+
+                layer_.wi1.grad = K_Math.add(layer_.wi1.grad, layer_grads[4]);
+                layer_.wi2.grad = K_Math.add(layer_.wi2.grad, layer_grads[5]);
+
+                layer_.ws1.grad = K_Math.add(layer_.ws1.grad, layer_grads[6]);
+                layer_.ws2.grad = K_Math.add(layer_.ws2.grad, layer_grads[7]);
+
+            }
+
+        }
+
+    }
+
+    static void learn_from_grads(List<Object> model, float learning_rate) {
+
+        for (Object layer : model)
+
+            if (layer instanceof K_Layer.Dense) {
+
+                K_Layer.Dense layer_ = (K_Layer.Dense) layer;
+
+                layer_.w.matrix = K_Math.sub(layer_.w.matrix, K_Math.mul_scalar(learning_rate, layer_.w.grad));
+
+            }
+
+            else if (layer instanceof K_Layer.LSTM) {
+
+                K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
+
+                layer_.wf1.matrix = K_Math.sub(layer_.wf1.matrix, K_Math.mul_scalar(learning_rate, layer_.wf1.grad));
+                layer_.wf2.matrix = K_Math.sub(layer_.wf2.matrix, K_Math.mul_scalar(learning_rate, layer_.wf2.grad));
+
+                layer_.wk1.matrix = K_Math.sub(layer_.wk1.matrix, K_Math.mul_scalar(learning_rate, layer_.wk1.grad));
+                layer_.wk2.matrix = K_Math.sub(layer_.wk2.matrix, K_Math.mul_scalar(learning_rate, layer_.wk2.grad));
+
+                layer_.wi1.matrix = K_Math.sub(layer_.wi1.matrix, K_Math.mul_scalar(learning_rate, layer_.wi1.grad));
+                layer_.wi2.matrix = K_Math.sub(layer_.wi2.matrix, K_Math.mul_scalar(learning_rate, layer_.wi2.grad));
+
+                layer_.ws1.matrix = K_Math.sub(layer_.ws1.matrix, K_Math.mul_scalar(learning_rate, layer_.ws1.grad));
+                layer_.ws2.matrix = K_Math.sub(layer_.ws2.matrix, K_Math.mul_scalar(learning_rate, layer_.ws2.grad));
+                
+            }
+
+    }
+
+    static void clear_grads(List<Object> model) {
+
+        for (Object layer : model)
+
+            if (layer instanceof K_Layer.Dense)
+
+                K_Layer.clear_grad((K_Layer.Dense) layer);
+
+            else if (layer instanceof K_Layer.LSTM)
+
+                K_Layer.clear_grad((K_Layer.LSTM) layer);
+
+    }
+    
 
 }
 
@@ -471,7 +557,7 @@ class K_Api{
         K_Model.learn_from_grads(model, learning_rate/batch.size());
 
         K_Model.clear_grads(model);
-        K_Model.clear_states(model);
+        // K_Model.clear_states(model);
 
         return batch_loss;
 
@@ -489,7 +575,7 @@ class K_Api{
 
     }
 
-    static void train_on_dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, int hm_epochs, float learning_rate) {
+    static void train_on_dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate, int hm_epochs) {
 
         float ep_loss;
 
@@ -506,6 +592,207 @@ class K_Api{
         }
 
     }
+
+    static void train_on_dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio, int batch_size, float learning_rate, int hm_epochs, int test_per_epochs) {
+
+        assert train_ratio + test_ratio <= 1;
+
+        // TODO : split dataset here.
+
+        // & start displaying train & ep loss
+
+        float ep_loss;
+
+        for (int i = 0; i < hm_epochs; i++) {
+
+            ep_loss = 0;
+
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+
+                ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
+
+            System.out.println("Epoch " + i + "\n\tTrain Loss: " + ep_loss + ((i + 1) % test_per_epochs == 0 ? "\n\tTest Loss: " + calc_test_loss() : ""));
+
+        }
+
+    }
+
+    static float calc_test_loss() { return .0f; } // todo: do
+
+
+    // Generic Modelling
+
+
+    static List<Object> Generate_Generic_Model(int[] sizes, String[] layer_types, String dense_act_fn) {
+
+        assert layer_types.length == sizes.length-1;
+
+        List<Object> layers = new ArrayList<>();
+
+        int ctr = -1;
+        for (String layer_type : layer_types) {
+            ctr++;
+
+            switch(layer_type) {
+
+                case "dense":
+
+                    layers.add(new K_Layer.Dense(sizes[ctr],sizes[ctr+1],dense_act_fn));
+
+                    break;
+
+                case "lstm":
+
+                    layers.add(new K_Layer.LSTM(sizes[ctr],sizes[ctr+1]));
+
+                    break;
+
+                default:
+                    System.out.println("Available layer types: dense/lstm");
+
+            }
+
+        }
+
+        return layers;
+
+    } ; static List<Object> Generate_Generic_Model(int[] sizes, String[] layer_types) { return Generate_Generic_Model(sizes, layer_types, "relu"); }
+
+
+    static Object[] loss_and_grad_from_datapoint(List<Object> model, ArrayList<Float[][]> datapoint) {
+
+        K_Tensor[] datapoint_t = new K_Tensor[datapoint.size()];
+
+        int ctr = -1;
+        for (Float[][] timestep : datapoint) {
+            ctr++;
+
+            datapoint_t[ctr] = new K_Tensor(timestep);
+
+        }
+
+        K_Tensor[] response = K_Model.propogate(model, datapoint_t);
+
+        float loss = K_Tensor.fill_grads(K_Util.sequence_loss(datapoint_t, response));
+
+        ArrayList<Float[][][]> grads = K_Model.collect_grads(model);
+
+        return new Object[]{loss, grads};
+
+    }
+
+    static Object[] loss_and_grad_from_batch(List<Object> model, ArrayList<ArrayList<Float[][]>> batch) {
+
+        float batch_loss = 0;
+
+        ArrayList<Float[][][]> batch_grad = K_Model.collect_grads(model);
+
+        for (ArrayList<Float[][]> sample : batch) {
+
+            Object[] result = loss_and_grad_from_datapoint(K_Util.copy(model), sample);
+
+            // parallelize here.
+
+
+
+            batch_loss += (float) result[0]; // TODO : this section comes after parallel
+
+            int ctr = -1;
+            for (Float[][][] layer_grad : (ArrayList<Float[][][]>) result[1]) {
+                ctr++;
+
+                Float[][][] batch_grad_layer = batch_grad.get(ctr);
+
+                int ctr2 = -1;
+                for (Float[][] weight_grad : layer_grad) {
+                    ctr2++;
+
+                    batch_grad_layer[ctr] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+
+                }
+
+            }
+
+        }
+
+        return new Object[]{batch_loss, batch_grad};
+
+    }
+
+
+    static float train_on_batch(List<Object> model, ArrayList<ArrayList<Float[][]>> batch, float learning_rate) {
+
+        Object[] result = loss_and_grad_from_batch(model, batch);
+
+        float batch_loss = (float) result[0];
+
+        ArrayList<Float[][][]> batch_grad = (ArrayList<Float[][][]>) result[1];
+
+        K_Model.apply_grads(model, batch_grad);
+
+        K_Model.learn_from_grads(model, learning_rate/batch.size());
+
+        K_Model.clear_grads(model);
+
+        return batch_loss;
+
+    }
+
+    static float train_on_dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate) {
+
+        float ep_loss = 0;
+
+        for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+
+            ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
+
+        return ep_loss;
+
+    }
+
+    static void train_on_dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate, int hm_epochs) {
+
+        float ep_loss;
+
+        for (int i = 0; i < hm_epochs; i++) {
+
+            ep_loss = 0;
+
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+
+                ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
+
+            System.out.println("Epoch " + i + " Loss " + ep_loss);
+
+        }
+
+    }
+
+    static void train_on_dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio, int batch_size, float learning_rate, int hm_epochs, int test_per_epochs) {
+
+        assert train_ratio + test_ratio <= 1;
+
+        // TODO : split dataset here.
+
+        // & start displaying train & ep loss
+
+        float ep_loss;
+
+        for (int i = 0; i < hm_epochs; i++) {
+
+            ep_loss = 0;
+
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+
+                ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
+
+            System.out.println("Epoch " + i + "\n\tTrain Loss: " + ep_loss + ((i + 1) % test_per_epochs == 0 ? "\n\tTest Loss: " + calc_test_loss() : ""));
+
+        }
+
+    }
+
+    //static float calc_test_loss() { return .0f; } // todo: do
 
 
 }
@@ -556,56 +843,33 @@ class K_Util {
 
     }
 
-    static K_Tensor sequence_loss(Float[][][] sample, K_Tensor[] response) {
+    static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response, String type) {
 
-        K_Tensor loss = K_Tensor.zeros(K_Tensor.size(response[0]));
+        K_Tensor loss = null; // K_Tensor.zeros(K_Tensor.size(response[0]));
 
-        for (int t = 0; t < response.length-1; t++)
+        if (type.equals("1")) {
 
-            if (t == 0)
+            for (int t = 0; t < response.length - 1; t++)
 
-                loss = K_Tensor.mean_square(response[t],sample[t+1]);
+                if (t == 0)
 
-            else
+                    loss = K_Tensor.mean_square(response[t], sample[t + 1]);
 
-                loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t],sample[t+1]));
+                else
 
-        return loss;
+                    loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t], sample[t + 1]));
 
-    }
+        }
 
-    static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response) {
-
-        K_Tensor loss = K_Tensor.zeros(K_Tensor.size(response[0]));
-
-        for (int t = 0; t < response.length-1; t++)
-
-            if (t == 0)
-
-                loss = K_Tensor.mean_square(response[t],sample[t+1]);
-
-            else
-
-                loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t],sample[t+1]));
+        else { return null; } // todo : seq2seq
 
         return loss;
 
-    }
+    } static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response) { return sequence_loss(sample, response, "1"); }
 
 
     // Extra
 
-    static List<K_Layer.Dense> copy(List<K_Layer.Dense> model) {
-
-        List<K_Layer.Dense> model_copy = new ArrayList<>();
-
-        for (K_Layer.Dense layer : model)
-
-            model_copy.add(new K_Layer.Dense(layer));
-
-        return model_copy;
-
-    }
 
     static ArrayList<K_Layer.LSTM> copy(ArrayList<K_Layer.LSTM> model) {
 
@@ -614,6 +878,24 @@ class K_Util {
         for (K_Layer.LSTM layer : model)
 
             model_copy.add(new K_Layer.LSTM(layer));
+
+        return model_copy;
+
+    }
+
+    static List<Object> copy(List<Object> model) {
+
+        List<Object> model_copy = new ArrayList<>();
+
+        for (Object layer : model)
+
+            if (layer instanceof K_Layer.Dense)
+
+                model_copy.add(new K_Layer.Dense((K_Layer.Dense) layer));
+
+            else if (layer instanceof K_Layer.LSTM)
+
+                model_copy.add(new K_Layer.LSTM((K_Layer.LSTM) layer));
 
         return model_copy;
 

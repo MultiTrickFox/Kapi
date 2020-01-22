@@ -1,6 +1,8 @@
 package k.kapi;
 
 import java.util.ArrayList;
+import java.util.List;
+
 
 public class Main {
 
@@ -24,7 +26,17 @@ public class Main {
 
     public static void main(String[] args) {
 
-        test_trainer();
+        test_generic_model();
+
+    }
+
+    static void test_generic_model() {
+
+        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],out_size},new String[]{"dense","lstm"}, "sigm");
+
+        ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(in_size, out_size, hm_data, seq_len);
+
+        K_Api.train_on_dataset(model, dataset, batch_size, learning_rate, hm_epochs);
 
     }
 
@@ -34,7 +46,7 @@ public class Main {
 
         ArrayList<K_Layer.LSTM> model = K_Model.LSTM(in_size, hiddens, out_size);
 
-        K_Api.train_on_dataset(model, dataset, batch_size, hm_epochs, learning_rate);
+        K_Api.train_on_dataset(model, dataset, batch_size, learning_rate, hm_epochs);
 
     }
 
@@ -194,6 +206,8 @@ public class Main {
 
 
     static ArrayList<ArrayList<Float[][]>> create_fake_data(int in_size, int out_size, int hm_data, int max_length) {
+
+        assert in_size == out_size;
 
         ArrayList<ArrayList<Float[][]>> dataset = new ArrayList<>();
 
