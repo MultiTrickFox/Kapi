@@ -151,6 +151,33 @@ class K_Layer {
     }
 
 
+    static void xavierize(Dense layer) {
+
+        float xav_val = (float) Math.sqrt(6.0 / (K_Math.size(layer.w.matrix,0)+K_Math.size(layer.w.matrix,1)));
+
+        layer.w.matrix = K_Math.mul_scalar(xav_val, layer.w.matrix);
+
+    }
+
+    static void xavierize(LSTM layer) {
+
+        float xav_val = (float) Math.sqrt(6.0 / (K_Math.size(layer.wf1.matrix,0)+K_Math.size(layer.wf1.matrix,1)));
+
+        layer.wf1.matrix = K_Math.mul_scalar(xav_val, layer.wf1.matrix);
+        layer.wf2.matrix = K_Math.mul_scalar(xav_val, layer.wf2.matrix);
+
+        layer.wk1.matrix = K_Math.mul_scalar(xav_val, layer.wk1.matrix);
+        layer.wk2.matrix = K_Math.mul_scalar(xav_val, layer.wk2.matrix);
+
+        layer.wi1.matrix = K_Math.mul_scalar(xav_val, layer.wi1.matrix);
+        layer.wi2.matrix = K_Math.mul_scalar(xav_val, layer.wi2.matrix);
+
+        layer.ws1.matrix = K_Math.mul_scalar(xav_val, layer.ws1.matrix);
+        layer.ws2.matrix = K_Math.mul_scalar(xav_val, layer.ws2.matrix);
+
+    }
+
+
 }
 
 
@@ -205,6 +232,10 @@ class K_Model {
         }
 
         model.add(new K_Layer.LSTM(hidden_sizes[hidden_sizes.length-1], out_size));
+
+        for (K_Layer.LSTM layer : model)
+
+            K_Layer.xavierize(layer);
 
         return model;
 
@@ -508,46 +539,62 @@ class K_Api{
 
     }
 
-
-
     static Object[] loss_and_grad_from_batch(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> batch) {
 
         float batch_loss = 0;
 
         ArrayList<Float[][][]> batch_grad = K_Model.collect_grads(model);
 
-        for (ArrayList<Float[][]> sample : batch) {
+        ArrayList<DatapointTask> tasks = new ArrayList<>();
 
-            Object[] result = loss_and_grad_from_datapoint(K_Util.copy(model), sample);
+        for (ArrayList<Float[][]> data : batch)
 
-            // parallelize here.
+            tasks.add(new DatapointTask(model, data));
 
+        try {
 
+            List<Future<ArrayList<Float[][]>>> promises = pool.invokeAll(tasks);
 
-            batch_loss += (float) result[0]; // TODO : this section comes after parallel
+            for (Future promise : promises)
 
-            int ctr = -1;
-            for (Float[][][] layer_grad : (ArrayList<Float[][][]>) result[1]) {
-                ctr++;
+                while(!promise.isDone()) {System.out.println("Empty promises..");}
 
-                Float[][][] batch_grad_layer = batch_grad.get(ctr);
+            float loss;
+            ArrayList<Float[][][]> layer_grads;
 
-                int ctr2 = -1;
-                for (Float[][] weight_grad : layer_grad) {
-                    ctr2++;
+            for (int i = 0; i < batch_grad.size(); i++)
 
-                    batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+                try {
+
+                    loss = (float) tasks.get(i).result[0];
+                    layer_grads = (ArrayList<Float[][][]>) tasks.get(i).result[1];
+
+                    batch_loss += loss;
+
+                    int ctr = -1;
+                    for (Float[][][] layer_grad : layer_grads) {
+                        ctr++;
+
+                        Float[][][] batch_grad_layer = batch_grad.get(ctr);
+
+                        int ctr2 = -1;
+                        for (Float[][] weight_grad : layer_grad) {
+                            ctr2++;
+
+                            batch_grad_layer[ctr2] = K_Math.add(weight_grad, batch_grad_layer[ctr2]);
+
+                        }
+
+                    }
 
                 }
+                catch (Exception e) { e.printStackTrace(); }
 
-            }
-
-        }
+        } catch (Exception e) { e.printStackTrace(); return null; }
 
         return new Object[]{batch_loss, batch_grad};
 
     }
-
 
     static float train_on_batch(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> batch, float learning_rate) {
 
@@ -642,13 +689,21 @@ class K_Api{
 
                 case "dense":
 
-                    layers.add(new K_Layer.Dense(sizes[ctr],sizes[ctr+1],dense_act_fn));
+                    K_Layer.Dense layer_dense = new K_Layer.Dense(sizes[ctr],sizes[ctr+1],dense_act_fn);
+
+                    K_Layer.xavierize(layer_dense);
+
+                    layers.add(layer_dense);
 
                     break;
 
                 case "lstm":
 
-                    layers.add(new K_Layer.LSTM(sizes[ctr],sizes[ctr+1]));
+                    K_Layer.LSTM layer_lstm = new K_Layer.LSTM(sizes[ctr],sizes[ctr+1]);
+
+                    K_Layer.xavierize(layer_lstm);
+
+                    layers.add(layer_lstm);
 
                     break;
 
@@ -690,11 +745,21 @@ class K_Api{
 
         Object[] result;
 
-        List<Object> model;
+        ArrayList<K_Layer.LSTM> model;
+
+        List<Object> model_generic;
 
         ArrayList<Float[][]> datapoint;
 
         DatapointTask(List<Object> model, ArrayList<Float[][]> datapoint) {
+
+            this.model_generic = K_Util.copy(model);
+
+            this.datapoint = datapoint;
+
+        }
+
+        DatapointTask(ArrayList<K_Layer.LSTM> model, ArrayList<Float[][]> datapoint) {
 
             this.model = K_Util.copy(model);
 
@@ -705,7 +770,13 @@ class K_Api{
         @Override
         public ArrayList<Float[][]> call() {
 
-            this.result = loss_and_grad_from_datapoint(this.model, this.datapoint);
+            if (this.model != null)
+
+                this.result = loss_and_grad_from_datapoint(this.model, this.datapoint);
+
+            else
+
+                this.result = loss_and_grad_from_datapoint(this.model_generic, this.datapoint);
 
             return null;
 
@@ -714,22 +785,6 @@ class K_Api{
     }
 
     static ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-    static private boolean is_done(List<Future<ArrayList<Double[][]>>> promises) {
-
-        for (Future promise : promises)
-
-            if (promise != null)
-
-                try {
-                    if (promise.get() == null) return false;
-                }
-                catch (InterruptedException e) { e.printStackTrace(); return false; }
-                catch (ExecutionException e) { e.printStackTrace(); }
-
-        return true;
-
-    }
 
     static Object[] loss_and_grad_from_batch(List<Object> model, ArrayList<ArrayList<Float[][]>> batch) {
 
@@ -837,50 +892,13 @@ class K_Api{
 
     }
 
-    static void train_on_dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio, int batch_size, float learning_rate, int hm_epochs, int test_per_epochs) {
-
-        assert train_ratio + test_ratio <= 1;
-
-        // TODO : split dataset here.
-
-        // & start displaying train & ep loss
-
-        float ep_loss;
-
-        for (int i = 0; i < hm_epochs; i++) {
-
-            ep_loss = 0;
-
-            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
-
-                ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
-
-            System.out.println("Epoch " + i + "\n\tTrain Loss: " + ep_loss + ((i + 1) % test_per_epochs == 0 ? "\n\tTest Loss: " + calc_test_loss() : ""));
-
-        }
-
-    }
-
-    //static float calc_test_loss() { return .0f; } // todo: do
-
+    // todo : paste new train_on_dataset method, i.e. "scientific" one.
 
 }
 
 
 class K_Util {
 
-
-    static void xavierize(ArrayList<K_Layer.LSTM> model) {
-
-//        layer.w = ...; // TODO : do
-
-    }
-
-    static void xavierize(List<Object> model) {
-
-//        layer.w = ...; // TODO : do
-
-    }
 
     static ArrayList<ArrayList<Float[][]>> shuffle(ArrayList<ArrayList<Float[][]>> items) {
 
@@ -914,27 +932,43 @@ class K_Util {
 
     static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response, String type) {
 
-        K_Tensor loss = null; // K_Tensor.zeros(K_Tensor.size(response[0]));
+        K_Tensor loss = null;
 
-        if (type.equals("1")) {
+        switch (type) {
 
-            for (int t = 0; t < response.length - 1; t++)
+            case "n/a":
 
-                if (t == 0)
+                for (int t = 0; t < response.length - 1; t++)
 
-                    loss = K_Tensor.mean_square(response[t], sample[t + 1]);
+                    if (t == 0)
 
-                else
+                        loss = K_Tensor.mean_square(response[t], sample[t + 1]);
 
-                    loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t], sample[t + 1]));
+                    else
+
+                        loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t], sample[t + 1]));
+
+                break;
+
+            case "enc_dec":
+
+                for (int t = 0; t < response.length; t++)
+
+                    if (t == 0)
+
+                        loss = K_Tensor.mean_square(response[t], sample[t]);
+
+                    else
+
+                        loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t], sample[t]));
+
+                break;
 
         }
 
-        else { return null; } // todo : seq2seq
-
         return loss;
 
-    } static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response) { return sequence_loss(sample, response, "1"); }
+    } static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response) { return sequence_loss(sample, response, "n/a"); }
 
 
     // Extra

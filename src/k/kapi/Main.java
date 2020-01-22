@@ -28,6 +28,8 @@ public class Main {
 
         test_generic_model();
 
+        //test_training_loop();
+
     }
 
     static void test_generic_model() {
