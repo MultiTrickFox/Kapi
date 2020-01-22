@@ -130,6 +130,35 @@ class K_Layer {
 
     }
 
+    static Float[][][] collect_grad(LSTM layer) {
+
+        return new Float[][][]{
+
+                layer.wf1.grad, layer.wf2.grad,
+                layer.wk1.grad, layer.wk2.grad,
+                layer.wi1.grad, layer.wi2.grad,
+                layer.ws1.grad, layer.ws2.grad,
+
+        };
+
+    }
+
+    static void apply_grad(LSTM layer, Float[][][] layer_grads) {
+
+        layer.wf1.grad = K_Math.add(layer.wf1.grad, layer_grads[0]);
+        layer.wf2.grad = K_Math.add(layer.wf2.grad, layer_grads[1]);
+
+        layer.wk1.grad = K_Math.add(layer.wk1.grad, layer_grads[2]);
+        layer.wk2.grad = K_Math.add(layer.wk2.grad, layer_grads[3]);
+
+        layer.wi1.grad = K_Math.add(layer.wi1.grad, layer_grads[4]);
+        layer.wi2.grad = K_Math.add(layer.wi2.grad, layer_grads[5]);
+
+        layer.ws1.grad = K_Math.add(layer.ws1.grad, layer_grads[6]);
+        layer.ws2.grad = K_Math.add(layer.ws2.grad, layer_grads[7]);
+
+    }
+
     static void clear_grad(LSTM layer) {
 
         layer.wf1.grad = K_Math.zeros(K_Math.size(layer.wf1.grad));
@@ -263,38 +292,13 @@ class K_Model {
 
     }
 
-    static ArrayList<K_Tensor> propogate_seq2seq(ArrayList<K_Layer.LSTM> encoder, ArrayList<K_Layer.LSTM> decoder, K_Tensor[] incoming) {
-
-        ArrayList<K_Tensor> response = new ArrayList<>();
-
-        for (K_Tensor timestep : incoming) {
-
-            for (K_Layer.LSTM layer : encoder)
-
-                timestep = K_Layer.propogate(layer, timestep);
-
-            response.add(timestep); // TODO : do all of this (someday)
-
-        }
-
-        return response;
-
-    }
-
     static ArrayList<Float[][][]> collect_grads(ArrayList<K_Layer.LSTM> model) {
 
         ArrayList<Float[][][]> layers_grads = new ArrayList<>();
 
         for (K_Layer.LSTM layer : model) {
 
-            layers_grads.add(new Float[][][]{
-
-                    layer.wf1.grad, layer.wf2.grad,
-                    layer.wk1.grad, layer.wk2.grad,
-                    layer.wi1.grad, layer.wi2.grad,
-                    layer.ws1.grad, layer.ws2.grad,
-
-            });
+            layers_grads.add(K_Layer.collect_grad(layer));
 
         }
 
@@ -310,19 +314,7 @@ class K_Model {
         for (K_Layer.LSTM layer : model) {
             ctr++;
 
-            layer_grads = grads.get(ctr);
-
-            layer.wf1.grad = K_Math.add(layer.wf1.grad, layer_grads[0]);
-            layer.wf2.grad = K_Math.add(layer.wf2.grad, layer_grads[1]);
-
-            layer.wk1.grad = K_Math.add(layer.wk1.grad, layer_grads[2]);
-            layer.wk2.grad = K_Math.add(layer.wk2.grad, layer_grads[3]);
-
-            layer.wi1.grad = K_Math.add(layer.wi1.grad, layer_grads[4]);
-            layer.wi2.grad = K_Math.add(layer.wi2.grad, layer_grads[5]);
-
-            layer.ws1.grad = K_Math.add(layer.ws1.grad, layer_grads[6]);
-            layer.ws2.grad = K_Math.add(layer.ws2.grad, layer_grads[7]);
+            K_Layer.apply_grad(layer, grads.get(ctr));
 
         }
 
@@ -400,27 +392,13 @@ class K_Model {
 
         for (Object layer : model) {
 
-            if (layer instanceof K_Layer.Dense) {
+            if (layer instanceof K_Layer.Dense)
 
                 layers_grads.add(new Float[][][]{((K_Layer.Dense) layer).w.grad});
 
-            } else if (layer instanceof K_Layer.LSTM) {
+            else if (layer instanceof K_Layer.LSTM)
 
-                K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
-                
-                layers_grads.add(new Float[][][]{
-
-                        layer_.wf1.grad, layer_.wf2.grad,
-
-                        layer_.wk1.grad, layer_.wk2.grad,
-
-                        layer_.wi1.grad, layer_.wi2.grad,
-
-                        layer_.ws1.grad, layer_.ws2.grad,
-
-                });
-
-            }
+                layers_grads.add(K_Layer.collect_grad((K_Layer.LSTM) layer));
 
         }
         
@@ -533,7 +511,7 @@ class K_Api{
 
         K_Tensor[] response = K_Model.propogate(model, datapoint_t);
 
-        float loss = K_Tensor.fill_grads(K_Util.sequence_loss(datapoint_t, response));
+        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t, response));
 
         ArrayList<Float[][][]> grads = K_Model.collect_grads(model);
 
@@ -564,7 +542,7 @@ class K_Api{
             float loss;
             ArrayList<Float[][][]> layer_grads;
 
-            for (int i = 0; i < batch_grad.size(); i++)
+            for (int i = 0; i < batch.size(); i++)
 
                 try {
 
@@ -617,11 +595,11 @@ class K_Api{
 
     }
 
-    static float train_on_dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate) {
+    static float Train_On_Dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate) {
 
         float ep_loss = 0;
 
-        for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+        for (ArrayList<ArrayList<Float[][]>> batch : K_Utils.batchify(K_Utils.shuffle(dataset), batch_size))
 
             ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
 
@@ -629,7 +607,7 @@ class K_Api{
 
     }
 
-    static void train_on_dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate, int hm_epochs) {
+    static void Train_On_Dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate, int hm_epochs) {
 
         float ep_loss;
 
@@ -637,7 +615,7 @@ class K_Api{
 
             ep_loss = 0;
 
-            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Utils.batchify(K_Utils.shuffle(dataset), batch_size))
 
                 ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
 
@@ -647,13 +625,12 @@ class K_Api{
 
     }
 
-    static void train_on_dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio, int batch_size, float learning_rate, int hm_epochs, int test_per_epochs) {
+    static void Train_On_Dataset(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio, int batch_size, float learning_rate, int hm_epochs, int test_per_epochs) {
 
         assert train_ratio + test_ratio <= 1;
 
-        // TODO : split dataset here.
-
-        // & start displaying train & ep loss
+        ArrayList<ArrayList<ArrayList<Float[][]>>> sets = K_Utils.split_dataset(dataset, train_ratio, test_ratio);
+        dataset = sets.get(0); ArrayList<ArrayList<Float[][]>> dataset2 = sets.get(1);
 
         float ep_loss;
 
@@ -661,17 +638,21 @@ class K_Api{
 
             ep_loss = 0;
 
-            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Utils.batchify(K_Utils.shuffle(dataset), batch_size))
 
                 ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
 
-            System.out.println("Epoch " + i + "\n\tTrain Loss: " + ep_loss + ((i + 1) % test_per_epochs == 0 ? "\n\tTest Loss: " + calc_test_loss() : ""));
+            System.out.println("Epoch " + i + "\n\tTrain Loss: " + ep_loss + ((i + 1) % test_per_epochs == 0 ? "\n\tTest Loss: " + calc_test_loss(K_Utils.copy(model), dataset2) : ""));
 
         }
 
     }
 
-    static float calc_test_loss() { return .0f; } // todo: do
+    static float calc_test_loss(ArrayList<K_Layer.LSTM> model, ArrayList<ArrayList<Float[][]>> dataset) {
+
+        return (float) loss_and_grad_from_batch(model, dataset)[0];
+
+    }
 
 
     // Generic Modelling
@@ -735,7 +716,7 @@ class K_Api{
 
         K_Tensor[] response = K_Model.propogate(model, datapoint_t);
 
-        float loss = K_Tensor.fill_grads(K_Util.sequence_loss(datapoint_t, response));
+        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t, response));
 
         ArrayList<Float[][][]> grads = K_Model.collect_grads(model);
 
@@ -755,7 +736,7 @@ class K_Api{
 
         DatapointTask(List<Object> model, ArrayList<Float[][]> datapoint) {
 
-            this.model_generic = K_Util.copy(model);
+            this.model_generic = K_Utils.copy(model);
 
             this.datapoint = datapoint;
 
@@ -763,7 +744,7 @@ class K_Api{
 
         DatapointTask(ArrayList<K_Layer.LSTM> model, ArrayList<Float[][]> datapoint) {
 
-            this.model = K_Util.copy(model);
+            this.model = K_Utils.copy(model);
 
             this.datapoint = datapoint;
 
@@ -811,7 +792,7 @@ class K_Api{
             float loss;
             ArrayList<Float[][][]> layer_grads;
 
-            for (int i = 0; i < batch_grad.size(); i++)
+            for (int i = 0; i < batch.size(); i++)
 
                 try {
 
@@ -864,11 +845,11 @@ class K_Api{
 
     }
 
-    static float train_on_dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate) {
+    static float Train_On_Dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate) {
 
         float ep_loss = 0;
 
-        for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+        for (ArrayList<ArrayList<Float[][]>> batch : K_Utils.batchify(K_Utils.shuffle(dataset), batch_size))
 
             ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
 
@@ -876,7 +857,7 @@ class K_Api{
 
     }
 
-    static void train_on_dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate, int hm_epochs) {
+    static void Train_On_Dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, int batch_size, float learning_rate, int hm_epochs) {
 
         float ep_loss;
 
@@ -884,7 +865,7 @@ class K_Api{
 
             ep_loss = 0;
 
-            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Utils.batchify(K_Utils.shuffle(dataset), batch_size))
 
                 ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
 
@@ -894,12 +875,40 @@ class K_Api{
 
     }
 
-    // todo : paste new train_on_dataset method, i.e. "scientific" one.
+    static void Train_On_Dataset(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio, int batch_size, float learning_rate, int hm_epochs, int test_per_epochs) {
+
+        assert train_ratio + test_ratio <= 1;
+
+        ArrayList<ArrayList<ArrayList<Float[][]>>> sets = K_Utils.split_dataset(dataset, train_ratio, test_ratio);
+        dataset = sets.get(0); ArrayList<ArrayList<Float[][]>> dataset2 = sets.get(1);
+
+        float ep_loss;
+
+        for (int i = 0; i < hm_epochs; i++) {
+
+            ep_loss = 0;
+
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Utils.batchify(K_Utils.shuffle(dataset), batch_size))
+
+                ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
+
+            System.out.println("Epoch " + i + "\n\tTrain Loss: " + ep_loss + ((i + 1) % test_per_epochs == 0 ? "\n\tTest Loss: " + calc_test_loss(K_Utils.copy(model), dataset2) : ""));
+
+        }
+
+    }
+
+    static float calc_test_loss(List<Object> model, ArrayList<ArrayList<Float[][]>> dataset) {
+
+        return (float) loss_and_grad_from_batch(model, dataset)[0];
+
+    }
+
 
 }
 
 
-class K_Util {
+class K_Utils {
 
 
     static ArrayList<ArrayList<Float[][]>> shuffle(ArrayList<ArrayList<Float[][]>> items) {
@@ -929,6 +938,33 @@ class K_Util {
         }
 
         return batches;
+
+    }
+
+    static ArrayList<ArrayList<ArrayList<Float[][]>>> split_dataset(ArrayList<ArrayList<Float[][]>> dataset, float train_ratio, float test_ratio) {
+
+        K_Utils.shuffle(dataset);
+
+        ArrayList<ArrayList<ArrayList<Float[][]>>> train_and_test = new ArrayList<>();
+        ArrayList<ArrayList<Float[][]>> training_set = new ArrayList<>();
+        ArrayList<ArrayList<Float[][]>> testing_set = new ArrayList<>();
+
+        int hm_data = dataset.size();
+        int hm_train = (int) Math.floor(hm_data * train_ratio);
+        int hm_test = (int) Math.floor(hm_data * test_ratio);
+
+        for (int i = 0; i < hm_train; i++)
+
+            training_set.add(dataset.get(i));
+
+        for (int i = hm_train; i < hm_train+hm_test; i++)
+
+            testing_set.add(dataset.get(i));
+
+        train_and_test.add(training_set);
+        train_and_test.add(testing_set);
+
+        return train_and_test;
 
     }
 

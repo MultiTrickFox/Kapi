@@ -12,34 +12,66 @@ public class Main {
     static int out_size = 10;
 
     static int hm_epochs = 20;
+    static int test_per_epochs = 5;
+
     static float learning_rate = .1f;
 
-    static int batch_size = 5;
+    static int batch_size = 4;
 
     static String activation_fn = "sigm";
 
     static int hm_data = 10;
-    static int seq_len = 5;
+    static int seq_len = 10;
+
+    static float train_ratio = .8f;
+    static float test_ratio = .2f;
 
 
 
 
     public static void main(String[] args) {
 
-        test_generic_model();
+        //test_generic_model();
 
         //test_training_loop();
+
+        //test_trainer();
+
+        test_biggest_trainer();
+
+    }
+
+    static void test_biggest_trainer() {
+
+        ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(in_size, out_size, hm_data, seq_len);
+
+        //ArrayList<K_Layer.LSTM> model = K_Model.LSTM(in_size, hiddens, out_size);
+
+        List<Object> model = K_Api.Generate_Generic_Model(
+
+                new int[]{in_size,hiddens[0],hiddens[1],out_size},
+                new String[]{"dense","lstm","dense"},
+                "elu");
+
+//        ArrayList<K_Layer.LSTM> model = K_Model.LSTM(in_size, hiddens, out_size);
+
+
+        K_Api.Train_On_Dataset(model, dataset, train_ratio, test_ratio, batch_size, learning_rate, hm_epochs, test_per_epochs);
 
     }
 
     static void test_generic_model() {
 
-        List<Object> model = K_Api.Generate_Generic_Model(new int[]{in_size,hiddens[0],hiddens[1],out_size},new String[]{"dense","lstm","dense"}, "elu");
+        List<Object> model = K_Api.Generate_Generic_Model(
+
+                new int[]{in_size,hiddens[0],hiddens[1],out_size},
+                new String[]{"dense","lstm","dense"},
+                "elu");
 
         ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(in_size, out_size, hm_data, seq_len);
 
-        K_Api.train_on_dataset(model, dataset, batch_size, learning_rate, hm_epochs);
-        
+        K_Api.Train_On_Dataset(model, dataset, batch_size, learning_rate, hm_epochs);
+
         //K_Api.loss_and_grad_from_datapoint(model, K_Util.shuffle(dataset).get(0));
 
     }
@@ -50,7 +82,7 @@ public class Main {
 
         ArrayList<K_Layer.LSTM> model = K_Model.LSTM(in_size, hiddens, out_size);
 
-        K_Api.train_on_dataset(model, dataset, batch_size, learning_rate, hm_epochs);
+        K_Api.Train_On_Dataset(model, dataset, batch_size, .001f, hm_epochs);
 
     }
 
@@ -66,7 +98,7 @@ public class Main {
 
             ep_loss = 0;
 
-            for (ArrayList<ArrayList<Float[][]>> batch : K_Util.batchify(K_Util.shuffle(dataset), batch_size))
+            for (ArrayList<ArrayList<Float[][]>> batch : K_Utils.batchify(K_Utils.shuffle(dataset), batch_size))
 
                 ep_loss += K_Api.train_on_batch(model, batch, learning_rate);
 
