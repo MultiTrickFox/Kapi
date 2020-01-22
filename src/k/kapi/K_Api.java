@@ -354,17 +354,29 @@ class K_Trainer{
 
         for (K_Tensor[] sample : batch) {
 
-            ArrayList<K_Tensor> response = K_Api.propogate(K_Api.copy(model), sample);
+            ArrayList<K_Tensor> response = K_Api.propogate(model, sample); // todo : there will be K_api.copy(model) here
 
             K_Tensor loss = K_Tensor.zeros(K_Tensor.size(response.get(0)));
 
             for (int t = 0; t < response.size()-1; t++)
 
-                loss = K_Tensor.add(loss, K_Tensor.mean_square(response.get(t),sample[t+1])); // K_Tensor.add(loss, K_Tensor.pow(K_Tensor.sub(response.get(t),sample[t+1]),2));
+                if (t == 0)
 
-            batch_loss +=K_Tensor.fill_grads(loss);
+                    loss = K_Tensor.mean_square(response.get(t),sample[t+1]);
+
+                else
+
+                    loss = K_Tensor.add(loss, K_Tensor.mean_square(response.get(t),sample[t+1]));
+
+            batch_loss += K_Tensor.fill_grads(loss); //K_Tensor.fill_grads(K_Tensor.mean_square(response.get(t),sample[t+1]));
+
+            K_Tensor.release_graph();
 
         }
+
+        learn_from_grads(model, learning_rate/batch.length);
+
+        K_Tensor.empty_grads();
 
         return batch_loss;
 

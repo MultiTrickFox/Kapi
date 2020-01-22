@@ -3,10 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b944cc16-28c9-40bd-94c1-fa6bff1b0778" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Trainer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Trainer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/LayerFF.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Api.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Api.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Tensor.java" afterDir="false" />

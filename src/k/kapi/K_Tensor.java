@@ -413,9 +413,15 @@ class K_Tensor {
 
     }
 
-    static void release_graph() { // TODO : for rnns?
+    static void release_graph() {
 
-        empty_grads();
+        for (K_Tensor tensor : graph) {
+
+            tensor.parents = new ArrayList<>();
+            tensor.childs = new ArrayList<>();
+            tensor.parent_grads = new ArrayList<>();
+
+        }
 
         graph = new ArrayList<>();
 

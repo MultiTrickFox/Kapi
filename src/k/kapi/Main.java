@@ -13,12 +13,12 @@ public class Main {
     static int hm_epochs = 20;
     static float learning_rate = .1f;
 
-    static int batch_size = 10;
+    static int batch_size = 5;
 
     static String activation_fn = "sigm";
 
-    static int hm_data = 100;
-    static int seq_len = 20;
+    static int hm_data = 10;
+    static int seq_len = 5;
 
 
 
