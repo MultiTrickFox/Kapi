@@ -7,17 +7,18 @@ public class Main {
 
 
     static int in_size = 12;
-    static int[] hiddens =  new int[]{10};
-    static int out_size = 5;
+    static int[] hiddens =  new int[]{20};
+    static int out_size = 12;
 
     static int hm_epochs = 20;
     static float learning_rate = .1f;
 
     static int batch_size = 10;
 
-    static int hidden_size = 10;
-
     static String activation_fn = "sigm";
+
+    static int hm_data = 100;
+    static int seq_len = 20;
 
 
 
@@ -47,15 +48,23 @@ public class Main {
 
     static void test_training_loop() {
 
-        ArrayList<K_Tensor[]> dataset = K_Trainer.create_fake_data(in_size, out_size, 100);
+        ArrayList<K_Tensor[]> dataset = K_Trainer.create_fake_data(in_size, out_size, hm_data, seq_len);
 
-        ArrayList<LayerLSTM> model = K_Api.LSTM(in_size, new int[]{hidden_size}, out_size);
+        ArrayList<LayerLSTM> model = K_Api.LSTM(in_size, hiddens, out_size);
 
-        for (int i = 0; i < hm_epochs; i++)
+        float ep_loss = 0;
+
+        for (int i = 0; i < hm_epochs; i++) {
+
+            ep_loss = 0;
 
             for (K_Tensor[][] batch : K_Trainer.batchify(dataset, batch_size))
 
-                K_Trainer.batch_train(model, batch, learning_rate);
+                ep_loss += K_Trainer.batch_train(model, batch, learning_rate);
+
+            System.out.println("Epoch " + i + " Loss " + ep_loss);
+
+        }
 
     }
 

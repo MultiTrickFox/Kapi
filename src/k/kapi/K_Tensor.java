@@ -55,7 +55,7 @@ class K_Tensor {
 
         return tensor;
 
-    }
+    } static K_Tensor zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); } // todo : do for others.
 
     static K_Tensor ones(int hm_rows, int hm_cols) {
 

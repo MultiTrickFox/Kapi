@@ -160,8 +160,10 @@ class K_Api {
 
             case "sigm":
                 return K_Tensor.sigm(out);
+
             case "tanh":
                 return K_Tensor.tanh(out);
+
             //case "relu": // todo : do someday
             //return K_Tensor.relu(out)
 
@@ -250,18 +252,17 @@ class K_Api {
 
     // Util Fns
 
-//    static void xavierize(ArrayList<LayerFF> model) {
-//
-////        layer.w = ...; // TODO : do
-//        System.out.println();
-//
-//    }
+    static void xavierize(List<LayerDense> model) {
 
-//    static void xavierize(ArrayList<LayerLSTM> model) {
-//
-////        layer.w = ...; // TODO : do
-//
-//    }
+//        layer.w = ...; // TODO : do
+
+    }
+
+    static void xavierize(ArrayList<LayerLSTM> model) {
+
+//        layer.w = ...; // TODO : do
+
+    }
 
 
     // Extras
@@ -303,15 +304,23 @@ class K_Api {
 class K_Trainer{
 
 
-    static ArrayList<K_Tensor[]> create_fake_data(int in_size, int out_size, int hm_data) {
+    static ArrayList<K_Tensor[]> create_fake_data(int in_size, int out_size, int hm_data, int max_length) {
 
         ArrayList<K_Tensor[]> dataset = new ArrayList<>();
 
-        for (int i = 0; i < hm_data; i++)
+        K_Tensor[] sequence;
 
-        { K_Tensor input1 = K_Tensor.randn(1, in_size);
-            K_Tensor label1 = K_Tensor.randn(1, out_size);
-            dataset.add(new K_Tensor[]{input1, label1}); }
+        for (int i = 0; i < hm_data; i++) {
+
+            sequence = new K_Tensor[max_length];
+
+            for (int t = 0; t < max_length; t++)
+
+                sequence[t] = K_Tensor.randn(1, in_size);
+
+            dataset.add(sequence);
+
+        }
 
         return dataset;
 
@@ -339,15 +348,127 @@ class K_Trainer{
 
     }
 
-    static void batch_train(K_Tensor[][] batch, ArrayList<LayerLSTM> model, float learning_rate) {
+    static float batch_train(ArrayList<LayerLSTM> model, K_Tensor[][] batch, float learning_rate) { // TODO : Parallelize
 
+        float batch_loss = 0;
 
+        for (K_Tensor[] sample : batch) {
+
+            ArrayList<K_Tensor> response = K_Api.propogate(K_Api.copy(model), sample);
+
+            K_Tensor loss = K_Tensor.zeros(K_Tensor.size(response.get(0)));
+
+            for (int t = 0; t < response.size()-1; t++)
+
+                loss = K_Tensor.add(loss, K_Tensor.mean_square(response.get(t),sample[t+1])); // K_Tensor.add(loss, K_Tensor.pow(K_Tensor.sub(response.get(t),sample[t+1]),2));
+
+            batch_loss +=K_Tensor.fill_grads(loss);
+
+        }
+
+        return batch_loss;
 
     }
 
-    static void batch_train(K_Tensor[][] batch, List<LayerDense> model) {
+    static ArrayList<Float[][][]> collect_grads(ArrayList<LayerLSTM> model) {
+
+        ArrayList<Float[][][]> layers_grads = new ArrayList<>();
+
+        for (LayerLSTM layer : model) {
+
+            layers_grads.add(new Float[][][]{
+
+                    layer.wf1.grad, layer.wf2.grad,
+                    layer.wk1.grad, layer.wk2.grad,
+                    layer.wi1.grad, layer.wi2.grad,
+                    layer.ws1.grad, layer.ws2.grad,
+
+            });
+
+        }
+
+        return layers_grads;
+
+    }
+
+    static void apply_grads(ArrayList<LayerLSTM> model, ArrayList<Float[][][]> grads) {
+
+        Float[][][] layer_grads;
+
+        int ctr = -1;
+        for (LayerLSTM layer : model) {
+            ctr++;
+
+            layer_grads = grads.get(ctr);
+
+            layer.wf1.grad = K_Math.add(layer.wf1.grad, layer_grads[0]);
+            layer.wf2.grad = K_Math.add(layer.wf2.grad, layer_grads[1]);
+
+            layer.wk1.grad = K_Math.add(layer.wk1.grad, layer_grads[2]);
+            layer.wk2.grad = K_Math.add(layer.wk2.grad, layer_grads[3]);
+
+            layer.wi1.grad = K_Math.add(layer.wi1.grad, layer_grads[4]);
+            layer.wi2.grad = K_Math.add(layer.wi2.grad, layer_grads[5]);
+
+            layer.ws1.grad = K_Math.add(layer.ws1.grad, layer_grads[6]);
+            layer.ws2.grad = K_Math.add(layer.ws2.grad, layer_grads[7]);
+
+        }
+
+    }
+
+    static void learn_from_grads(ArrayList<LayerLSTM> model, float learning_rate) {
+
+        for (LayerLSTM layer : model) {
+
+            layer.wf1.matrix = K_Math.sub(layer.wf1.matrix, K_Math.mul_scalar(learning_rate, layer.wf1.grad));
+            layer.wf2.matrix = K_Math.sub(layer.wf2.matrix, K_Math.mul_scalar(learning_rate, layer.wf2.grad));
+
+            layer.wk1.matrix = K_Math.sub(layer.wk1.matrix, K_Math.mul_scalar(learning_rate, layer.wk1.grad));
+            layer.wk2.matrix = K_Math.sub(layer.wk2.matrix, K_Math.mul_scalar(learning_rate, layer.wk2.grad));
+
+            layer.wi1.matrix = K_Math.sub(layer.wi1.matrix, K_Math.mul_scalar(learning_rate, layer.wi1.grad));
+            layer.wi2.matrix = K_Math.sub(layer.wi2.matrix, K_Math.mul_scalar(learning_rate, layer.wi2.grad));
+
+            layer.ws1.matrix = K_Math.sub(layer.ws1.matrix, K_Math.mul_scalar(learning_rate, layer.ws1.grad));
+            layer.ws2.matrix = K_Math.sub(layer.ws2.matrix, K_Math.mul_scalar(learning_rate, layer.ws2.grad));
+
+        }
+
+    }
 
 
+    static ArrayList<Float[][]> collect_grads(List<LayerDense> model) {
+
+        ArrayList<Float[][]> layers_grads = new ArrayList<>();
+
+        for (LayerDense layer : model)
+
+            layers_grads.add(layer.w.grad);
+
+        return layers_grads;
+
+    }
+
+    static void apply_grads(List<LayerDense> model, ArrayList<Float[][]> grads) {
+
+        Float[][] layer_grads;
+
+        int ctr = -1;
+        for (LayerDense layer : model) {
+            ctr++;
+
+            layer.w.grad = K_Math.add(layer.w.grad, grads.get(ctr));
+
+        }
+
+    }
+
+    static void learn_from_grads(List<LayerDense> model, float learning_rate) {
+
+        for (LayerDense layer : model)
+
+            layer.w.matrix = K_Math.sub(layer.w.matrix, K_Math.mul_scalar(learning_rate, layer.w.grad));
 
     }
 
