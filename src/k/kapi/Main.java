@@ -40,6 +40,41 @@ public class Main {
 
         test_custom();
 
+        //test_model_combining();
+
+    }
+
+    static void test_model_combining() {
+
+        ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(13, 13, 4, 3);
+
+        List<Object> model = K_Api.Generate_Generic_Model(
+
+                new int[]{in_size,hiddens[0],hiddens[1],out_size},
+                new String[]{"dense","lstm","dense"},
+                "elu");
+
+        List<Object> model2 = K_Api.Generate_Generic_Model(
+
+                new int[]{in_size,hiddens[0],hiddens[1],out_size},
+                new String[]{"dense","lstm","dense"},
+                "elu");
+
+        K_Layer.Dense model3 = new K_Layer.Dense(out_size, out_size, "sigm");
+
+        K_Layer.LSTM model4 = new K_Layer.LSTM(out_size, out_size);
+
+        List<Object> modelx = K_Utils.combine_networks(model, model2);
+        List<Object> modely = K_Utils.combine_networks(model, model3);
+        List<Object> modelz = K_Utils.combine_networks(model, model4);
+        List<Object> modelq = K_Utils.combine_networks(model3, model4);
+
+
+        K_Api.train_on_batch(modelx, dataset, learning_rate);
+        K_Api.train_on_batch(modely, dataset, learning_rate);
+        K_Api.train_on_batch(modelz, dataset, learning_rate);
+        K_Api.train_on_batch(modelq, dataset, learning_rate);
+
     }
 
     static void test_custom() {
@@ -72,7 +107,7 @@ public class Main {
         System.out.println(loss);
 
         //K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
-        static K_Tensor zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); }
+
     }
 
     static void test_biggest_trainer() {

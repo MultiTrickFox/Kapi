@@ -1081,7 +1081,7 @@ class K_Utils {
 
     }
 
-    static List<Object> combine_models(List<Object> model1, List<Object> model2) {
+    static List<Object> combine_networks(List<Object> model1, List<Object> model2) {
 
         List<Object> combination = new ArrayList<>();
 
@@ -1091,6 +1091,35 @@ class K_Utils {
         return combination;
 
     }
+
+    static List<Object> combine_networks(List<Object> model1, K_Layer.Dense model2) {
+
+        List<Object> combination = new ArrayList<>(model1);
+        combination.add(model2);
+
+        return combination;
+
+    }
+
+    static List<Object> combine_networks(List<Object> model1, K_Layer.LSTM model2) {
+
+        List<Object> combination = new ArrayList<>(model1);
+        combination.add(model2);
+
+        return combination;
+
+    }
+
+    static List<Object> combine_networks(K_Layer.LSTM model1, K_Layer.Dense model2) {
+
+        List<Object> combination = new ArrayList<>();
+
+        combination.add(model1);
+        combination.add(model2);
+
+        return combination;
+
+    } static List<Object> combine_networks(K_Layer.Dense model1, K_Layer.LSTM model2) { return combine_networks(model2, model1); }
 
 
 }
