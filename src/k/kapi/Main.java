@@ -1,5 +1,8 @@
 package k.kapi;
 
+import RootBeer.rootbeer.runtime.Kernel; // TOdo : move to kmath
+import RootBeer.rootbeer.runtime.Rootbeer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +11,7 @@ import java.util.List;
 class GPU_OPS {
 
 
-    static class Matmul_GPU implements RootBeer.syr.pcpratts.rootbeer.runtime.Kernel {
+    static class Matmul_GPU implements Kernel {
 
         Float[][] src1;
         Float[][] src2;
@@ -41,7 +44,7 @@ class GPU_OPS {
 
         Float[][] dest = new Float[src1.length][src2[0].length];
 
-        List<RootBeer.syr.pcpratts.rootbeer.runtime.Kernel> tasks = new ArrayList<>();
+        List<Kernel> tasks = new ArrayList<>();
 
         for (int i = 0; i < src1.length; i++)
 
@@ -49,7 +52,7 @@ class GPU_OPS {
 
                 tasks.add(new Matmul_GPU(src1, src2, dest, i, j));
 
-        RootBeer.syr.pcpratts.rootbeer.runtime.Rootbeer rootbeer = new RootBeer.syr.pcpratts.rootbeer.runtime.Rootbeer();
+        Rootbeer rootbeer = new Rootbeer();
 
         rootbeer.runAll(tasks);
 
