@@ -4,6 +4,66 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
+class GPU_OPS {
+
+
+    static class Matmul_GPU implements RootBeer.syr.pcpratts.rootbeer.runtime.Kernel {
+
+        Float[][] src1;
+        Float[][] src2;
+        Float[][] dest;
+        int i;
+        int j;
+
+        Matmul_GPU(Float[][] src1, Float[][] src2, Float[][] dest, int i, int j) {
+
+            this.src1 = src1;
+            this.src2 = src2;
+            this.dest = dest;
+            this.i = i;
+            this.j = j;
+
+        }
+
+        @Override
+        public void gpuMethod() {
+
+            this.dest[i][j] = 0.0f;
+            for (int k = 0; k < this.src1[0].length; k++)
+                this.dest[i][j] += this.src1[i][k] * this.src2[k][j];
+
+        }
+
+    }
+
+    static Float[][] matmul(Float[][] src1, Float[][] src2) {
+
+        Float[][] dest = new Float[src1.length][src2[0].length];
+
+        List<RootBeer.syr.pcpratts.rootbeer.runtime.Kernel> tasks = new ArrayList<>();
+
+        for (int i = 0; i < src1.length; i++)
+
+            for (int j = 0; j < src2[0].length; j++)
+
+                tasks.add(new Matmul_GPU(src1, src2, dest, i, j));
+
+        RootBeer.syr.pcpratts.rootbeer.runtime.Rootbeer rootbeer = new RootBeer.syr.pcpratts.rootbeer.runtime.Rootbeer();
+
+        rootbeer.runAll(tasks);
+
+        return dest;
+
+    }
+
+
+}
+
+
+
+
+
 public class Main {
 
 
@@ -38,9 +98,57 @@ public class Main {
 
         //test_biggest_trainer();
 
-        test_custom();
+        //test_custom();
 
-        //test_model_combining();
+        //test_model_combining();\
+
+
+
+
+
+
+        Float[][] result = GPU_OPS.matmul(K_Math.zeros(2,3), K_Math.zeros(3,4));
+
+        System.out.println(result);
+
+
+
+
+
+
+
+    }
+
+    static void test_custom() {
+
+        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(13, 13, 4, 3);
+
+//                K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
+//                    new int[]{13,3,2,13},
+//                    new String[]{"dense","lstm","dense"},
+//                    "sigm");
+
+        K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
+                new int[]{ 13,      3,     2,      13},
+                new String[]{"dense","lstm","dense"},
+                new int[]{ 13,      3,     2,     2,     13},
+                new String[]{"dense","lstm","lstm","dense"},
+                "sigm");
+
+        //Object[] results = K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
+
+        //System.out.println(results);
+
+
+        float loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+
+        System.out.println(loss);
+
+        loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+
+        System.out.println(loss);
+
+        //K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
 
     }
 
@@ -74,39 +182,6 @@ public class Main {
         K_Api.train_on_batch(modely, dataset, learning_rate);
         K_Api.train_on_batch(modelz, dataset, learning_rate);
         K_Api.train_on_batch(modelq, dataset, learning_rate);
-
-    }
-
-    static void test_custom() {
-
-        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(13, 13, 4, 3);
-
-//                K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
-//                    new int[]{13,3,2,13},
-//                    new String[]{"dense","lstm","dense"},
-//                    "sigm");
-
-        K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
-                    new int[]{ 13,      3,     2,      13},
-                    new String[]{"dense","lstm","dense"},
-                    new int[]{ 13,      3,     2,     2,     13},
-                    new String[]{"dense","lstm","lstm","dense"},
-                    "sigm");
-
-        //Object[] results = K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
-
-        //System.out.println(results);
-
-
-        float loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
-
-        System.out.println(loss);
-
-        loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
-
-        System.out.println(loss);
-
-        //K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
 
     }
 

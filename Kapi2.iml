@@ -12,5 +12,18 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/src/RootBeer/rootbeer_libs" />
+        </CLASSES>
+        <JAVADOC />
+        <NATIVE>
+          <root url="file://$MODULE_DIR$/src/RootBeer/rootbeer_libs" />
+        </NATIVE>
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/src/RootBeer/rootbeer_libs" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>

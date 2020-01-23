@@ -3,8 +3,19 @@
   <component name="ChangeListManager">
     <list default="true" id="b944cc16-28c9-40bd-94c1-fa6bff1b0778" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Tensor.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_NN.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_NN.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Kapi2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Kapi2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api$DatapointTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api$DatapointTask.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Api.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Dlc$DatapointTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Dlc$DatapointTask.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Dlc$Encoder_Decoder.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Dlc$Encoder_Decoder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Dlc.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Dlc.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$Dense.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$Dense.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$LSTM.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer$LSTM.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Layer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Model.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Model.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Utils.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/K_Utils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/k/kapi/K_NN.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/K_Neural.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +47,9 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
   </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
@@ -81,10 +95,14 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="555" y="177" key="#com.intellij.ide.util.MemberChooser" timestamp="1579710672278">
+    <state x="598" y="223" key="#com.intellij.ide.util.MemberChooser" timestamp="1579816908425">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state x="555" y="177" key="#com.intellij.ide.util.MemberChooser/44.22.1396.878@44.22.1396.878" timestamp="1579710672278" />
+    <state x="598" y="223" key="#com.intellij.ide.util.MemberChooser/44.22.1396.878@44.22.1396.878" timestamp="1579816908425" />
+    <state x="580" y="178" key="#com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditorDialog" timestamp="1579817750486">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state x="580" y="178" key="#com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditorDialog/44.22.1396.878@44.22.1396.878" timestamp="1579817750486" />
     <state x="430" y="196" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1579691209894">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
@@ -93,42 +111,58 @@
       <screen x="44" y="22" width="1396" height="878" />
     </state>
     <state x="44" y="22" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/44.22.1396.878@44.22.1396.878" timestamp="1579801243919" />
+    <state x="480" y="215" key="#com.intellij.refactoring.typeMigration.ui.FailedConversionsDialog" timestamp="1579817534699">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state x="480" y="215" key="#com.intellij.refactoring.typeMigration.ui.FailedConversionsDialog/44.22.1396.878@44.22.1396.878" timestamp="1579817534699" />
     <state width="537" height="466" key="DebuggerActiveHint" timestamp="1579784451222">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
     <state width="537" height="466" key="DebuggerActiveHint/44.22.1396.878@44.22.1396.878" timestamp="1579784451222" />
-    <state width="1354" height="208" key="GridCell.Tab.0.bottom" timestamp="1579801842319">
+    <state x="504" y="183" key="DetectedRootsChooserDialog" timestamp="1579817169795">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="208" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579801842319" />
-    <state width="1354" height="208" key="GridCell.Tab.0.center" timestamp="1579801842318">
+    <state x="504" y="183" key="DetectedRootsChooserDialog/44.22.1396.878@44.22.1396.878" timestamp="1579817169795" />
+    <state width="1354" height="286" key="GridCell.Tab.0.bottom" timestamp="1579817986919">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="208" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579801842318" />
-    <state width="1354" height="208" key="GridCell.Tab.0.left" timestamp="1579801842318">
+    <state width="1354" height="286" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579817986919" />
+    <state width="1354" height="286" key="GridCell.Tab.0.center" timestamp="1579817986918">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="208" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579801842318" />
-    <state width="1354" height="208" key="GridCell.Tab.0.right" timestamp="1579801842319">
+    <state width="1354" height="286" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579817986918" />
+    <state width="1354" height="286" key="GridCell.Tab.0.left" timestamp="1579817986918">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="208" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579801842319" />
-    <state width="1354" height="286" key="GridCell.Tab.1.bottom" timestamp="1579788809566">
+    <state width="1354" height="286" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579817986918" />
+    <state width="1354" height="286" key="GridCell.Tab.0.right" timestamp="1579817986919">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="286" key="GridCell.Tab.1.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579788809566" />
-    <state width="1354" height="286" key="GridCell.Tab.1.center" timestamp="1579788809565">
+    <state width="1354" height="286" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579817986919" />
+    <state width="1354" height="286" key="GridCell.Tab.1.bottom" timestamp="1579817986801">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="286" key="GridCell.Tab.1.center/44.22.1396.878@44.22.1396.878" timestamp="1579788809565" />
-    <state width="1354" height="286" key="GridCell.Tab.1.left" timestamp="1579788809565">
+    <state width="1354" height="286" key="GridCell.Tab.1.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579817986801" />
+    <state width="1354" height="286" key="GridCell.Tab.1.center" timestamp="1579817986801">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="286" key="GridCell.Tab.1.left/44.22.1396.878@44.22.1396.878" timestamp="1579788809565" />
-    <state width="1354" height="286" key="GridCell.Tab.1.right" timestamp="1579788809566">
+    <state width="1354" height="286" key="GridCell.Tab.1.center/44.22.1396.878@44.22.1396.878" timestamp="1579817986801" />
+    <state width="1354" height="286" key="GridCell.Tab.1.left" timestamp="1579817986800">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
-    <state width="1354" height="286" key="GridCell.Tab.1.right/44.22.1396.878@44.22.1396.878" timestamp="1579788809566" />
+    <state width="1354" height="286" key="GridCell.Tab.1.left/44.22.1396.878@44.22.1396.878" timestamp="1579817986800" />
+    <state width="1354" height="286" key="GridCell.Tab.1.right" timestamp="1579817986801">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state width="1354" height="286" key="GridCell.Tab.1.right/44.22.1396.878@44.22.1396.878" timestamp="1579817986801" />
+    <state x="230" y="42" key="SettingsEditor" timestamp="1579817838092">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state x="230" y="42" key="SettingsEditor/44.22.1396.878@44.22.1396.878" timestamp="1579817838092" />
+    <state x="449" y="84" key="refactoring.ChangeSignatureDialog" timestamp="1579817526086">
+      <screen x="44" y="22" width="1396" height="878" />
+    </state>
+    <state x="449" y="84" key="refactoring.ChangeSignatureDialog/44.22.1396.878@44.22.1396.878" timestamp="1579817526086" />
     <state x="407" y="212" width="670" height="676" key="search.everywhere.popup" timestamp="1579694635735">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
