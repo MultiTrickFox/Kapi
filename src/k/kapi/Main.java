@@ -28,10 +28,9 @@ public class Main {
 
 
 
-
     public static void main(String[] args) {
 
-        test_generic_model();
+        //test_generic_model();
 
         //test_training_loop();
 
@@ -39,7 +38,7 @@ public class Main {
 
         //test_biggest_trainer();
 
-        //test_custom();
+        test_custom();
 
     }
 
@@ -53,10 +52,10 @@ public class Main {
 //                    "sigm");
 
         K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
-                    new int[]{13,3,2,13},
+                    new int[]{ 13,      3,     2,      13},
                     new String[]{"dense","lstm","dense"},
-                    new int[]{13,3,2,2,4,13},
-                    new String[]{"dense","lstm","lstm","lstm","dense"},
+                    new int[]{ 13,      3,     2,     2,     13},
+                    new String[]{"dense","lstm","lstm","dense"},
                     "sigm");
 
         //Object[] results = K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
@@ -72,9 +71,8 @@ public class Main {
 
         System.out.println(loss);
 
-
         //K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
-
+        static K_Tensor zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); }
     }
 
     static void test_biggest_trainer() {

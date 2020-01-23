@@ -540,12 +540,10 @@ class K_Api{
         K_Tensor[] response = K_Model.propogate(model, datapoint_t);
 
         K_Tensor[] datapoint_t_forloss = new K_Tensor[datapoint_t.length-1];
-        for (int i = 0; i < datapoint_t_forloss.length; i++)
-            datapoint_t_forloss[i] = datapoint_t[i+1];
+        System.arraycopy(datapoint_t, 1, datapoint_t_forloss, 0, datapoint_t_forloss.length);
 
         K_Tensor[] response_forloss = new K_Tensor[response.length-1];
-        for (int i = 0; i < response_forloss.length; i++)
-            response_forloss[i] = response[i];
+        System.arraycopy(response, 0, response_forloss, 0, response_forloss.length);
 
         float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t_forloss, response_forloss));
 
@@ -752,12 +750,10 @@ class K_Api{
         K_Tensor[] response = K_Model.propogate(model, datapoint_t);
 
         K_Tensor[] datapoint_t_forloss = new K_Tensor[datapoint_t.length-1];
-        for (int i = 0; i < datapoint_t_forloss.length; i++)
-            datapoint_t_forloss[i] = datapoint_t[i+1];
-
+        System.arraycopy(datapoint_t, 1, datapoint_t_forloss, 0, datapoint_t_forloss.length);
+                                                                     // omg java, just do [:-1]
         K_Tensor[] response_forloss = new K_Tensor[response.length-1];
-        for (int i = 0; i < response_forloss.length; i++)
-            response_forloss[i] = response[i];
+        System.arraycopy(response, 0, response_forloss, 0, response_forloss.length);
 
         float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t_forloss, response_forloss));
 
@@ -1085,6 +1081,17 @@ class K_Utils {
 
     }
 
+    static List<Object> combine_models(List<Object> model1, List<Object> model2) {
+
+        List<Object> combination = new ArrayList<>();
+
+        combination.addAll(model1);
+        combination.addAll(model2);
+
+        return combination;
+
+    }
+
 
 }
 
@@ -1137,13 +1144,14 @@ class K_Dlc {
 
         ArrayList<K_Tensor> dec_outgoing_response = new ArrayList<>();
 
-        // TODO : here, do this if dec_in == enc_out
+        K_Tensor prev_response_step = null;
 
-        K_Tensor prev_response_step = enc_outgoing_response[enc_outgoing_response.length-1];
+        Object dec_last_layer = model.decoder.get(model.decoder.size()-1);
 
-        // else :
-
-        // K_Math.zeros
+        if (dec_last_layer instanceof K_Layer.Dense)
+            prev_response_step = K_Tensor.zeros(1, K_Tensor.size(((K_Layer.Dense) dec_last_layer).w, 1));
+        else if (dec_last_layer instanceof K_Layer.LSTM)
+            prev_response_step = K_Tensor.zeros(1, K_Tensor.size(((K_Layer.LSTM) dec_last_layer).wf1, 1));
 
         for (int t = 0; t < outgoing_length; t++) {
 
@@ -1251,8 +1259,6 @@ class K_Dlc {
 
     }
 
-    // static ExecutorService threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
     static Object[] loss_and_grad_from_batch(Encoder_Decoder model, ArrayList<ArrayList<ArrayList<Float[][]>>> batch) {
 
         float batch_loss = 0;
@@ -1338,12 +1344,11 @@ class K_Dlc {
         ArrayList<Float[][][]> batch_grad_dec = (ArrayList<Float[][][]>) ((Object[]) result[1])[1];
 
         K_Model.apply_grads(model.encoder, batch_grad_enc);
-        K_Model.apply_grads(model.decoder, batch_grad_dec);
-
         K_Model.learn_from_grads(model.encoder, learning_rate/batch.size());
-        K_Model.learn_from_grads(model.decoder, learning_rate/batch.size());
-
         K_Model.clear_grads(model.encoder);
+
+        K_Model.apply_grads(model.decoder, batch_grad_dec);
+        K_Model.learn_from_grads(model.decoder, learning_rate/batch.size());
         K_Model.clear_grads(model.decoder);
 
         return loss;

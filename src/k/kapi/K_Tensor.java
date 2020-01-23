@@ -55,7 +55,7 @@ class K_Tensor {
 
         return tensor;
 
-    } static K_Tensor zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); } // todo : do for others.
+    } static K_Tensor zeros(int[] sizes) { return zeros(sizes[0], sizes[1]); }
 
     static K_Tensor ones(int hm_rows, int hm_cols) {
 
@@ -65,7 +65,7 @@ class K_Tensor {
 
         return tensor;
 
-    }
+    } static K_Tensor ones(int[] sizes) { return ones(sizes[0], sizes[1]); }
 
     static K_Tensor randn(int hm_rows, int hm_cols) {
 
@@ -75,7 +75,7 @@ class K_Tensor {
 
         return tensor;
 
-    }
+    } static K_Tensor randn(int[] sizes) { return randn(sizes[0], sizes[1]); }
 
     static K_Tensor identity(int hm_rows, int hm_cols) {
 
@@ -85,7 +85,7 @@ class K_Tensor {
 
         return tensor;
 
-    }
+    } static K_Tensor identity(int[] sizes) { return identity(sizes[0], sizes[1]); }
 
     static K_Tensor constants(int hm_rows, int hm_cols, float val) {
 
@@ -95,7 +95,7 @@ class K_Tensor {
 
         return tensor;
 
-    }
+    } static K_Tensor constants(int[] sizes, float val) { return constants(sizes[0], sizes[1], val); }
 
 
     // matrix operations
