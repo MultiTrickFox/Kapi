@@ -561,7 +561,15 @@ class K_Api{
 
         K_Tensor[] response = K_Model.propogate(model, datapoint_t);
 
-        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t, response));
+        K_Tensor[] datapoint_t_forloss = new K_Tensor[datapoint_t.length-1];
+        for (int i = 0; i < datapoint_t_forloss.length; i++)
+            datapoint_t_forloss[i] = datapoint_t[i+1];
+
+        K_Tensor[] response_forloss = new K_Tensor[response.length-1];
+        for (int i = 0; i < response_forloss.length; i++)
+            response_forloss[i] = response[i];
+
+        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t_forloss, response_forloss));
 
         ArrayList<Float[][][]> grads = K_Model.collect_grads(model);
 
@@ -765,7 +773,15 @@ class K_Api{
 
         K_Tensor[] response = K_Model.propogate(model, datapoint_t);
 
-        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t, response));
+        K_Tensor[] datapoint_t_forloss = new K_Tensor[datapoint_t.length-1];
+        for (int i = 0; i < datapoint_t_forloss.length; i++)
+            datapoint_t_forloss[i] = datapoint_t[i+1];
+
+        K_Tensor[] response_forloss = new K_Tensor[response.length-1];
+        for (int i = 0; i < response_forloss.length; i++)
+            response_forloss[i] = response[i];
+
+        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(datapoint_t_forloss, response_forloss));
 
         ArrayList<Float[][][]> grads = K_Model.collect_grads(model);
 
@@ -1039,45 +1055,23 @@ class K_Utils {
 
     }
 
-    static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response, String type) {
+    static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response) {
 
         K_Tensor loss = null;
 
-        switch (type) {
+        for (int t = 0; t < response.length; t++)
 
-            case "n/a":
+            if (t == 0)
 
-                for (int t = 0; t < response.length - 1; t++)
+                loss = K_Tensor.mean_square(response[t], sample[t]);
 
-                    if (t == 0)
+            else
 
-                        loss = K_Tensor.mean_square(response[t], sample[t + 1]);
-
-                    else
-
-                        loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t], sample[t + 1]));
-
-                break;
-
-            case "encdec":
-
-                for (int t = 0; t < response.length; t++)
-
-                    if (t == 0)
-
-                        loss = K_Tensor.mean_square(response[t], sample[t]);
-
-                    else
-
-                        loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t], sample[t]));
-
-                break;
-
-        }
+                loss = K_Tensor.add(loss, K_Tensor.mean_square(response[t], sample[t]));
 
         return loss;
 
-    } static K_Tensor sequence_loss(K_Tensor[] sample, K_Tensor[] response) { return sequence_loss(sample, response, "n/a"); }
+    }
 
 
     // Extra
@@ -1193,8 +1187,6 @@ class K_Dlc {
 
     private static void try_to_fit_states(List<Object> decoder, ArrayList<K_Tensor> states) {
 
-        boolean states_fit = true;
-
         int i = -1;
         for (Object layer : decoder) {
             i++;
@@ -1203,31 +1195,21 @@ class K_Dlc {
 
                 K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
 
-                states_fit = states_fit && states.get(i) != null && (K_Tensor.size(layer_.state,0) == K_Tensor.size(states.get(i),0) && K_Tensor.size(layer_.state,1) == K_Tensor.size(states.get(i),1));
+                if (i < states.size() && states.get(i) != null && K_Tensor.size(layer_.state, 0) == K_Tensor.size(states.get(i), 0) && K_Tensor.size(layer_.state, 1) == K_Tensor.size(states.get(i), 1))
+
+                    layer_.state = states.get(i);
+
+                else
+
+                    for (K_Tensor state : states)
+
+                        if (state != null && K_Tensor.size(layer_.state, 0) == K_Tensor.size(state, 0) && K_Tensor.size(layer_.state, 1) == K_Tensor.size(state, 1))
+
+                            layer_.state = state;
 
             }
 
         }
-
-        if (states_fit)
-
-            K_Model.apply_states(decoder, states);
-
-        else
-
-            for (Object layer : decoder)
-
-                if (layer instanceof K_Layer.LSTM) {
-
-                    K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
-
-                    for (K_Tensor state : states)
-
-                        if (state != null && K_Tensor.size(layer_.state,0) == K_Tensor.size(state,0) && K_Tensor.size(layer_.state,1) == K_Tensor.size(state,1))
-
-                            layer_.state = state;
-
-                }
 
     }
 
@@ -1252,7 +1234,7 @@ class K_Dlc {
 
             label_t[i] = new K_Tensor(label.get(i));
 
-        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(response, label_t, "encdec"));
+        float loss = K_Tensor.fill_grads(K_Utils.sequence_loss(response, label_t));
 
         ArrayList<ArrayList<Float[][][]>> grads = new ArrayList<>();
         grads.add(K_Model.collect_grads(model.encoder));

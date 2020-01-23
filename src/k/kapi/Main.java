@@ -7,9 +7,9 @@ import java.util.List;
 public class Main {
 
 
-    static int in_size = 10;
-    static int[] hiddens =  new int[]{18, 12};
-    static int out_size = 10;
+    static int in_size = 13;
+    static int[] hiddens =  new int[]{3, 2};
+    static int out_size = 13;
 
     static int hm_epochs = 20;
     static int test_per_epochs = 5;
@@ -45,7 +45,7 @@ public class Main {
 
     static void test_custom() {
 
-        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(13, 13, 4, 4);
+        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(13, 13, 4, 3);
 
 //                K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
 //                    new int[]{13,3,2,13},
@@ -59,7 +59,7 @@ public class Main {
                     new String[]{"dense","lstm","lstm","lstm","dense"},
                     "sigm");
 
-        //Object[] results = K_Custom.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
+        //Object[] results = K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
 
         //System.out.println(results);
 
