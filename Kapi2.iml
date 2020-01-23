@@ -15,12 +15,14 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/k/kapi/libs/RootBeer.jar!/" />
+          <root url="file://$MODULE_DIR$/src/ext" />
         </CLASSES>
-        <JAVADOC>
-          <root url="jar://$MODULE_DIR$/src/k/kapi/libs/RootBeer.jar!/doc" />
-        </JAVADOC>
+        <JAVADOC />
+        <NATIVE>
+          <root url="file://$MODULE_DIR$/src/ext" />
+        </NATIVE>
         <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/src/ext" recursive="false" />
       </library>
     </orderEntry>
   </component>
