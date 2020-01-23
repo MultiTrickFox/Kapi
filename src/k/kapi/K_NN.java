@@ -159,6 +159,22 @@ class K_Layer {
 
     }
 
+    static void learn_from_grad(LSTM layer, float learning_rate) {
+
+        layer.wf1.matrix = K_Math.sub(layer.wf1.matrix, K_Math.mul_scalar(learning_rate, layer.wf1.grad));
+        layer.wf2.matrix = K_Math.sub(layer.wf2.matrix, K_Math.mul_scalar(learning_rate, layer.wf2.grad));
+
+        layer.wk1.matrix = K_Math.sub(layer.wk1.matrix, K_Math.mul_scalar(learning_rate, layer.wk1.grad));
+        layer.wk2.matrix = K_Math.sub(layer.wk2.matrix, K_Math.mul_scalar(learning_rate, layer.wk2.grad));
+
+        layer.wi1.matrix = K_Math.sub(layer.wi1.matrix, K_Math.mul_scalar(learning_rate, layer.wi1.grad));
+        layer.wi2.matrix = K_Math.sub(layer.wi2.matrix, K_Math.mul_scalar(learning_rate, layer.wi2.grad));
+
+        layer.ws1.matrix = K_Math.sub(layer.ws1.matrix, K_Math.mul_scalar(learning_rate, layer.ws1.grad));
+        layer.ws2.matrix = K_Math.sub(layer.ws2.matrix, K_Math.mul_scalar(learning_rate, layer.ws2.grad));
+
+    }
+
     static void clear_grad(LSTM layer) {
 
         layer.wf1.grad = K_Math.zeros(K_Math.size(layer.wf1.grad));
@@ -181,6 +197,8 @@ class K_Layer {
 
     }
 
+
+    // extras
 
     static void xavierize(Dense layer) {
 
@@ -324,17 +342,7 @@ class K_Model {
 
         for (K_Layer.LSTM layer : model) {
 
-            layer.wf1.matrix = K_Math.sub(layer.wf1.matrix, K_Math.mul_scalar(learning_rate, layer.wf1.grad));
-            layer.wf2.matrix = K_Math.sub(layer.wf2.matrix, K_Math.mul_scalar(learning_rate, layer.wf2.grad));
-
-            layer.wk1.matrix = K_Math.sub(layer.wk1.matrix, K_Math.mul_scalar(learning_rate, layer.wk1.grad));
-            layer.wk2.matrix = K_Math.sub(layer.wk2.matrix, K_Math.mul_scalar(learning_rate, layer.wk2.grad));
-
-            layer.wi1.matrix = K_Math.sub(layer.wi1.matrix, K_Math.mul_scalar(learning_rate, layer.wi1.grad));
-            layer.wi2.matrix = K_Math.sub(layer.wi2.matrix, K_Math.mul_scalar(learning_rate, layer.wi2.grad));
-
-            layer.ws1.matrix = K_Math.sub(layer.ws1.matrix, K_Math.mul_scalar(learning_rate, layer.ws1.grad));
-            layer.ws2.matrix = K_Math.sub(layer.ws2.matrix, K_Math.mul_scalar(learning_rate, layer.ws2.grad));
+            K_Layer.learn_from_grad(layer, learning_rate);
 
         }
 
@@ -384,17 +392,7 @@ class K_Model {
         for (K_Tensor timestep : incoming) {
             ctr++;
 
-            for (Object layer : model)
-
-                if (layer instanceof K_Layer.Dense)
-
-                    timestep = K_Layer.propogate((K_Layer.Dense) layer, timestep);
-
-                else if (layer instanceof K_Layer.LSTM)
-
-                    timestep = K_Layer.propogate((K_Layer.LSTM) layer, timestep);
-
-            response[ctr] = timestep;
+            response[ctr] = propogate(model, timestep);
 
         }
 
@@ -442,17 +440,7 @@ class K_Model {
 
                 layer_grads = grads.get(ctr);
 
-                layer_.wf1.grad = K_Math.add(layer_.wf1.grad, layer_grads[0]);
-                layer_.wf2.grad = K_Math.add(layer_.wf2.grad, layer_grads[1]);
-
-                layer_.wk1.grad = K_Math.add(layer_.wk1.grad, layer_grads[2]);
-                layer_.wk2.grad = K_Math.add(layer_.wk2.grad, layer_grads[3]);
-
-                layer_.wi1.grad = K_Math.add(layer_.wi1.grad, layer_grads[4]);
-                layer_.wi2.grad = K_Math.add(layer_.wi2.grad, layer_grads[5]);
-
-                layer_.ws1.grad = K_Math.add(layer_.ws1.grad, layer_grads[6]);
-                layer_.ws2.grad = K_Math.add(layer_.ws2.grad, layer_grads[7]);
+                K_Layer.apply_grad(layer_, layer_grads);
 
             }
 
@@ -476,17 +464,7 @@ class K_Model {
 
                 K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
 
-                layer_.wf1.matrix = K_Math.sub(layer_.wf1.matrix, K_Math.mul_scalar(learning_rate, layer_.wf1.grad));
-                layer_.wf2.matrix = K_Math.sub(layer_.wf2.matrix, K_Math.mul_scalar(learning_rate, layer_.wf2.grad));
-
-                layer_.wk1.matrix = K_Math.sub(layer_.wk1.matrix, K_Math.mul_scalar(learning_rate, layer_.wk1.grad));
-                layer_.wk2.matrix = K_Math.sub(layer_.wk2.matrix, K_Math.mul_scalar(learning_rate, layer_.wk2.grad));
-
-                layer_.wi1.matrix = K_Math.sub(layer_.wi1.matrix, K_Math.mul_scalar(learning_rate, layer_.wi1.grad));
-                layer_.wi2.matrix = K_Math.sub(layer_.wi2.matrix, K_Math.mul_scalar(learning_rate, layer_.wi2.grad));
-
-                layer_.ws1.matrix = K_Math.sub(layer_.ws1.matrix, K_Math.mul_scalar(learning_rate, layer_.ws1.grad));
-                layer_.ws2.matrix = K_Math.sub(layer_.ws2.matrix, K_Math.mul_scalar(learning_rate, layer_.ws2.grad));
+                K_Layer.learn_from_grad(layer_, learning_rate);
                 
             }
 

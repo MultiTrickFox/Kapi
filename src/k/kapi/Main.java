@@ -31,7 +31,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        //test_generic_model();
+        test_generic_model();
 
         //test_training_loop();
 
@@ -39,7 +39,7 @@ public class Main {
 
         //test_biggest_trainer();
 
-        test_custom();
+        //test_custom();
 
     }
 
