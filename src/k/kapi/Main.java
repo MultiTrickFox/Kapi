@@ -45,24 +45,35 @@ public class Main {
 
     static void test_custom() {
 
-        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(7, 7, 5, 2);
+        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(13, 13, 4, 4);
 
-        K_Custom.Encoder_Decoder encdec = new K_Custom.Encoder_Decoder(
-                    new int[]{7,4,3,7},
+//                K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
+//                    new int[]{13,3,2,13},
+//                    new String[]{"dense","lstm","dense"},
+//                    "sigm");
+
+        K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
+                    new int[]{13,3,2,13},
                     new String[]{"dense","lstm","dense"},
-                    "elu");
+                    new int[]{13,3,2,2,4,13},
+                    new String[]{"dense","lstm","lstm","lstm","dense"},
+                    "sigm");
 
         //Object[] results = K_Custom.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
 
         //System.out.println(results);
 
-        float loss = K_Custom.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+
+        float loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
 
         System.out.println(loss);
 
-        loss = K_Custom.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+        loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
 
         System.out.println(loss);
+
+
+        //K_Dlc.loss_and_grad_from_datapoint(encdec, dataset.get(0).get(0), dataset.get(0).get(1));
 
     }
 

@@ -639,7 +639,6 @@ class K_Api{
         K_Model.learn_from_grads(model, learning_rate/batch.size());
 
         K_Model.clear_grads(model);
-        // K_Model.clear_states(model);
 
         return batch_loss;
 
@@ -1118,7 +1117,7 @@ class K_Utils {
 }
 
 
-class K_Custom {
+class K_Dlc {
 
 
     static class Encoder_Decoder {
@@ -1162,7 +1161,7 @@ class K_Custom {
 
         ArrayList<K_Tensor> states = K_Model.collect_states(model.encoder);
 
-        K_Model.apply_states(model.decoder, states);
+        try_to_fit_states(model.decoder, states);
 
         ArrayList<K_Tensor> dec_outgoing_response = new ArrayList<>();
 
@@ -1189,6 +1188,46 @@ class K_Custom {
             return_array[i] = dec_outgoing_response.get(i);
 
         return return_array;
+
+    }
+
+    private static void try_to_fit_states(List<Object> decoder, ArrayList<K_Tensor> states) {
+
+        boolean states_fit = true;
+
+        int i = -1;
+        for (Object layer : decoder) {
+            i++;
+
+            if (layer instanceof K_Layer.LSTM) {
+
+                K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
+
+                states_fit = states_fit && states.get(i) != null && (K_Tensor.size(layer_.state,0) == K_Tensor.size(states.get(i),0) && K_Tensor.size(layer_.state,1) == K_Tensor.size(states.get(i),1));
+
+            }
+
+        }
+
+        if (states_fit)
+
+            K_Model.apply_states(decoder, states);
+
+        else
+
+            for (Object layer : decoder)
+
+                if (layer instanceof K_Layer.LSTM) {
+
+                    K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
+
+                    for (K_Tensor state : states)
+
+                        if (state != null && K_Tensor.size(layer_.state,0) == K_Tensor.size(state,0) && K_Tensor.size(layer_.state,1) == K_Tensor.size(state,1))
+
+                            layer_.state = state;
+
+                }
 
     }
 
@@ -1222,7 +1261,6 @@ class K_Custom {
         return new Object[]{loss, grads};
 
     }
-
 
     static class DatapointTask implements Callable<ArrayList<Float[][]>> {
 
