@@ -1,68 +1,17 @@
 package k.kapi;
 
-import RootBeer.rootbeer.runtime.Kernel; // TOdo : move to kmath
-import RootBeer.rootbeer.runtime.Rootbeer;
+//import RootBeer.rootbeer.runtime.Kernel; //
+//import RootBeer.rootbeer.runtime.Rootbeer;
+
+
+// todo: these import to kmath
+import static org.jocl.CL.*;
+import org.jocl.*;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
-
-
-
-class GPU_OPS {
-
-
-    static class Matmul_GPU implements Kernel {
-
-        Float[][] src1;
-        Float[][] src2;
-        Float[][] dest;
-        int i;
-        int j;
-
-        Matmul_GPU(Float[][] src1, Float[][] src2, Float[][] dest, int i, int j) {
-
-            this.src1 = src1;
-            this.src2 = src2;
-            this.dest = dest;
-            this.i = i;
-            this.j = j;
-
-        }
-
-        @Override
-        public void gpuMethod() {
-
-            this.dest[i][j] = 0.0f;
-            for (int k = 0; k < this.src1[0].length; k++)
-                this.dest[i][j] += this.src1[i][k] * this.src2[k][j];
-
-        }
-
-    }
-
-    static Float[][] matmul(Float[][] src1, Float[][] src2) {
-
-        Float[][] dest = new Float[src1.length][src2[0].length];
-
-        List<Kernel> tasks = new ArrayList<>();
-
-        for (int i = 0; i < src1.length; i++)
-
-            for (int j = 0; j < src2[0].length; j++)
-
-                tasks.add(new Matmul_GPU(src1, src2, dest, i, j));
-
-        Rootbeer rootbeer = new Rootbeer();
-
-        rootbeer.runAll(tasks);
-
-        return dest;
-
-    }
-
-
-}
-
 
 
 
@@ -105,14 +54,13 @@ public class Main {
 
         //test_model_combining();\
 
+        test_gpu_stuff();
 
 
+//        Float[][] result = GPU_OPS.matmul(K_Math.zeros(2,3), K_Math.zeros(3,4));
+//
+//        System.out.println(result);
 
-
-
-        Float[][] result = GPU_OPS.matmul(K_Math.zeros(2,3), K_Math.zeros(3,4));
-
-        System.out.println(result);
 
 
 
@@ -307,85 +255,85 @@ public class Main {
 //
 //    }
 
-//    static void test_diff() {
-//
-//        Float[][] w1 = new Float[3][3];
-//        Float[][] w2 = new Float[3][3];
-//
-//        w1[0][0] = 0.1f;
-//        w1[0][1] = 0.6f;
-//        w1[0][2] = 0.2f;
-//        w1[1][0] = 0.7f;
-//        w1[1][1] = -0.2f;
-//        w1[1][2] = -0.1f;
-//        w1[2][0] = 0.2f;
-//        w1[2][1] = 0.7f;
-//        w1[2][2] = 0.1f;
-//
-//        w2[0][0] = 0.3f;
-//        w2[0][1] = 0.1f;
-//        w2[0][2] = 0.01f;
-//        w2[1][0] = -0.1f;
-//        w2[1][1] = -0.1f;
-//        w2[1][2] = -0.2f;
-//        w2[2][0] = -0.3f;
-//        w2[2][1] = 0.1f;
-//        w2[2][2] = 0.2f;
-//
-//
-//        K_Tensor t_in = new K_Tensor(inp); t_in.requires_grad=true;
-//        K_Tensor t_w1 = new K_Tensor(w1); t_w1.requires_grad=true;
-//        K_Tensor t_w2 = new K_Tensor(w2); t_w2.requires_grad=true;
-//
-//
-//        K_Tensor node_out = K_Tensor.matmul(t_in, t_w1);
+    static void test_diff() {
+
+        Float[][] w1 = new Float[3][3];
+        Float[][] w2 = new Float[3][3];
+
+        w1[0][0] = 0.1f;
+        w1[0][1] = 0.6f;
+        w1[0][2] = 0.2f;
+        w1[1][0] = 0.7f;
+        w1[1][1] = -0.2f;
+        w1[1][2] = -0.1f;
+        w1[2][0] = 0.2f;
+        w1[2][1] = 0.7f;
+        w1[2][2] = 0.1f;
+
+        w2[0][0] = 0.3f;
+        w2[0][1] = 0.1f;
+        w2[0][2] = 0.01f;
+        w2[1][0] = -0.1f;
+        w2[1][1] = -0.1f;
+        w2[1][2] = -0.2f;
+        w2[2][0] = -0.3f;
+        w2[2][1] = 0.1f;
+        w2[2][2] = 0.2f;
+
+
+        K_Tensor t_in = new K_Tensor(inp); t_in.requires_grad=true;
+        K_Tensor t_w1 = new K_Tensor(w1); t_w1.requires_grad=true;
+        K_Tensor t_w2 = new K_Tensor(w2); t_w2.requires_grad=true;
+
+
+        K_Tensor node_out = K_Tensor.matmul(t_in, t_w1);
 //        K_Tensor.fill_grads(node_out);
 //        System.out.println("node out " + t_in.grad[0][0] + " " + t_w1.grad[0][0]);
 //        K_Tensor.empty_grads();
-//
-//
-//        K_Tensor node_out_gated = K_Tensor.sigm(node_out);
+
+
+        K_Tensor node_out_gated = K_Tensor.sigm(node_out);
 //        K_Tensor.fill_grads(node_out_gated);
 //        System.out.println("node out gated " + t_in.grad[0][0] + " " + t_w1.grad[0][0]);
 //        K_Tensor.empty_grads();
-////
-////
-//        K_Tensor node_out2 = K_Tensor.matmul(node_out_gated, t_w2);
+//
+//
+        K_Tensor node_out2 = K_Tensor.matmul(node_out_gated, t_w2);
 //        K_Tensor.fill_grads(node_out2);
 //        System.out.println("node out 2 " + t_in.grad[0][0] + " " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
 //        K_Tensor.empty_grads();
-////
-////
-//        K_Tensor node_loss = K_Tensor.mean_square(target, node_out2);
-//        float loss = K_Tensor.fill_grads(node_loss);
-//        System.out.println("node loss " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
+//
+//
+        K_Tensor node_loss = K_Tensor.mean_square(target, node_out2);
+        float loss = K_Tensor.fill_grads(node_loss);
+        System.out.println("node loss " + t_in.grad[0][0] + " " + t_w1.grad[0][0]);
 //        K_Tensor.empty_grads();
-//
-//        System.out.println("Loss: " + loss + " " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
-//
-//
-////        // update weights.
-//        t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul_scalar(t_w1.grad, 0.01f));
-//        t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul_scalar(t_w2.grad, 0.01f));
+
+        System.out.println("Loss: " + loss + " " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
+
+
+//        // update weights.
+        t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul_scalar(t_w1.grad, 0.01f));
+        t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul_scalar(t_w2.grad, 0.01f));
 //        K_Tensor.empty_grads();
-//
-//        for (int ep = 0; ep < hm_epochs; ep++) {
-//
-//            // repeat.
-//            node_out = K_Tensor.matmul(t_in, t_w1);
-//            node_out_gated = K_Tensor.sigm(node_out);
-//            node_out2 = K_Tensor.matmul(node_out_gated, t_w2);
-//            node_loss = K_Tensor.mean_square(target, node_out2);
-//
-//            loss = K_Tensor.fill_grads(node_loss);
-//            System.out.println("Ep " + ep + " Loss: " + loss + ", grads: " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
-//            t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul_scalar(t_w1.grad, 0.01f));
-//            t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul_scalar(t_w2.grad, 0.01f));
+
+        for (int ep = 0; ep < hm_epochs; ep++) {
+
+            // repeat.
+            node_out = K_Tensor.matmul(t_in, t_w1);
+            node_out_gated = K_Tensor.sigm(node_out);
+            node_out2 = K_Tensor.matmul(node_out_gated, t_w2);
+            node_loss = K_Tensor.mean_square(target, node_out2);
+
+            loss = K_Tensor.fill_grads(node_loss);
+            System.out.println("Ep " + ep + " Loss: " + loss + ", grads: " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
+            t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul_scalar(t_w1.grad, 0.01f));
+            t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul_scalar(t_w2.grad, 0.01f));
 //            K_Tensor.empty_grads();
-//
-//        }
-//
-//    }
+
+        }
+
+    }
 
 
     static ArrayList<ArrayList<Float[][]>> create_fake_data(int in_size, int out_size, int hm_data, int max_length) {
@@ -453,4 +401,210 @@ public class Main {
     }
 
 
+
+    static void test_gpu_stuff() {
+
+        String programSource =
+                "__kernel void "+
+                        "sampleKernel(__global const float *a,"+
+                        "             __global const float *b,"+
+                        "             __global float *c)"+
+                        "{"+
+                        "    int gid = get_global_id(0);"+
+                        "    c[gid] = a[gid] * b[gid];"+
+                        "}";
+
+
+
+        // Create input- and output data
+        int n = 10;
+        float srcArrayA[] = new float[n];
+        float srcArrayB[] = new float[n];
+        float dstArray[] = new float[n];
+        for (int i=0; i<n; i++)
+        {
+            srcArrayA[i] = i;
+            srcArrayB[i] = i;
+        }
+        Pointer srcA = Pointer.to(srcArrayA);
+        Pointer srcB = Pointer.to(srcArrayB);
+        Pointer dst = Pointer.to(dstArray);
+
+        // The platform, device type and device number
+        // that will be used
+        final int platformIndex = 0;
+        final long deviceType = CL_DEVICE_TYPE_ALL;
+        final int deviceIndex = 0;
+
+        // Enable exceptions and subsequently omit error checks in this sample
+        CL.setExceptionsEnabled(true);
+
+        // Obtain the number of platforms
+        int numPlatformsArray[] = new int[1];
+        clGetPlatformIDs(0, null, numPlatformsArray);
+        int numPlatforms = numPlatformsArray[0];
+
+        // Obtain a platform ID
+        cl_platform_id platforms[] = new cl_platform_id[numPlatforms];
+        clGetPlatformIDs(platforms.length, platforms, null);
+        cl_platform_id platform = platforms[platformIndex];
+
+        // Obtain the number of devices for the platform
+        int numDevicesArray[] = new int[1];
+        clGetDeviceIDs(platform, deviceType, 0, null, numDevicesArray);
+        int numDevices = numDevicesArray[0];
+        System.out.println("num devices: " + numDevices); // 2 for cpu and internal gpu // 3 for external gpu as well..
+
+        // Obtain a device ID
+        cl_device_id devices[] = new cl_device_id[numDevices];
+        clGetDeviceIDs(platform, deviceType, numDevices, devices, null);
+        cl_device_id device = devices[deviceIndex];
+
+        // Initialize the context properties
+        cl_context_properties contextProperties = new cl_context_properties();
+        contextProperties.addProperty(CL_CONTEXT_PLATFORM, platform);
+
+        // Create a context for the selected device
+        cl_context context = clCreateContext(
+                contextProperties, 1, new cl_device_id[]{device},
+                null, null, null);
+
+        // Create a command-queue for the selected device
+        cl_command_queue commandQueue =
+                clCreateCommandQueue(context, device, 0, null);
+
+        // Allocate the memory objects for the input- and output data
+        cl_mem memObjects[] = new cl_mem[3];
+        memObjects[0] = clCreateBuffer(context,
+                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                Sizeof.cl_float * n, srcA, null);
+        memObjects[1] = clCreateBuffer(context,
+                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                Sizeof.cl_float * n, srcB, null);
+        memObjects[2] = clCreateBuffer(context,
+                CL_MEM_READ_WRITE,
+                Sizeof.cl_float * n, null, null);
+
+        // Create the program from the source code
+        cl_program program = clCreateProgramWithSource(context,
+                1, new String[]{ programSource }, null, null);
+
+        // Build the program
+        clBuildProgram(program, 0, null, null, null, null);
+
+        // Create the kernel
+        cl_kernel kernel = clCreateKernel(program, "sampleKernel", null);
+
+        // Set the arguments for the kernel
+        clSetKernelArg(kernel, 0,
+                Sizeof.cl_mem, Pointer.to(memObjects[0]));
+        clSetKernelArg(kernel, 1,
+                Sizeof.cl_mem, Pointer.to(memObjects[1]));
+        clSetKernelArg(kernel, 2,
+                Sizeof.cl_mem, Pointer.to(memObjects[2]));
+
+        // Set the work-item dimensions
+        long global_work_size[] = new long[]{n};
+        long local_work_size[] = new long[]{1};
+
+        // Execute the kernel
+        clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                global_work_size, local_work_size, 0, null, null);
+
+        // Read the output data
+        clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
+                n * Sizeof.cl_float, dst, 0, null, null);
+
+        // Release kernel, program, and memory objects
+        clReleaseMemObject(memObjects[0]);
+        clReleaseMemObject(memObjects[1]);
+        clReleaseMemObject(memObjects[2]);
+        clReleaseKernel(kernel);
+        clReleaseProgram(program);
+        clReleaseCommandQueue(commandQueue);
+        clReleaseContext(context);
+
+        // Verify the result
+        boolean passed = true;
+        final float epsilon = 1e-7f;
+        for (int i=0; i<n; i++)
+        {
+            float x = dstArray[i];
+            float y = srcArrayA[i] * srcArrayB[i];
+            boolean epsilonEqual = Math.abs(x - y) <= epsilon * Math.abs(x);
+            if (!epsilonEqual)
+            {
+                passed = false;
+                break;
+            }
+        }
+        System.out.println("Test "+(passed?"PASSED":"FAILED"));
+        if (n <= 10)
+        {
+            System.out.println("Result: "+java.util.Arrays.toString(dstArray));
+        }
+    }
+
+
 }
+
+
+
+
+//// Rootbeer stuff
+//
+//
+//
+//class GPU_OPS {
+//
+//
+//    static class Matmul_GPU implements Kernel {
+//
+//        Float[][] src1;
+//        Float[][] src2;
+//        Float[][] dest;
+//        int i;
+//        int j;
+//
+//        Matmul_GPU(Float[][] src1, Float[][] src2, Float[][] dest, int i, int j) {
+//
+//            this.src1 = src1;
+//            this.src2 = src2;
+//            this.dest = dest;
+//            this.i = i;
+//            this.j = j;
+//
+//        }
+//
+//        @Override
+//        public void gpuMethod() {
+//
+//            this.dest[i][j] = 0.0f;
+//            for (int k = 0; k < this.src1[0].length; k++)
+//                this.dest[i][j] += this.src1[i][k] * this.src2[k][j];
+//
+//        }
+//
+//    }
+//
+//    static Float[][] matmul(Float[][] src1, Float[][] src2) {
+//
+//        Float[][] dest = new Float[src1.length][src2[0].length];
+//
+//        List<Kernel> tasks = new ArrayList<>();
+//
+//        for (int i = 0; i < src1.length; i++)
+//
+//            for (int j = 0; j < src2[0].length; j++)
+//
+//                tasks.add(new Matmul_GPU(src1, src2, dest, i, j));
+//
+//        Rootbeer rootbeer = new Rootbeer();
+//
+//        rootbeer.runAll(tasks);
+//
+//        return dest;
+//
+//    }
+//
+//}

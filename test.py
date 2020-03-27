@@ -31,24 +31,24 @@ target = tensor(target)
 
 
 out1 = inp @ w1
-sum(out1).backward(retain_graph=True)
-print(w1.grad)
-w1.grad = None
+# sum(out1).backward(retain_graph=True)
+# print(w1.grad)
+# w1.grad = None
 
 out1 = sigmoid(out1)
-sum(out1).backward(retain_graph=True)
-print(w1.grad)
-w1.grad = None
+# sum(out1).backward(retain_graph=True)
+# print(w1.grad)
+# w1.grad = None
 
 out2 = out1 @ w2
-sum(out2).backward(retain_graph=True)
-print(w2.grad)
-w1.grad = None
-w2.grad = None
+# sum(out2).backward(retain_graph=True)
+# print(w2.grad)
+# w1.grad = None
+# w2.grad = None
 
 loss = pow(target-out2,2)
 sum(loss).backward()
-print(w1.grad)
+print(inp.grad)
 
 
 #print(loss)
