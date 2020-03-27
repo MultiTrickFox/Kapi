@@ -2,60 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b944cc16-28c9-40bd-94c1-fa6bff1b0778" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/ext/jocl-2.0.2.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ext/jocl-blast-1.5.0.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ext/K_CL.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kapi2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Kapi2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cudaruntime.so.1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/META-INF/Kapi2.kotlin_module" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/License.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/RootBeer.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/antlr-3.1.3.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/commons-collections-3.2.1.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/jasminclasses-2.5.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/javacl-1.0-beta-6-shaded.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/jcublas-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/jcuda-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/jcufft-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/jcurand-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/jcusparse-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/junit-4.9b2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/libJCublas-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/libJCudaDriver-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/libJCudaRuntime-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/libJCufft-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/libJCurand-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/libJCusparse-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/pack.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/polyglotclasses-1.3.5.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/ext/sootclasses-2.5.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/GPU_OPS$Matmul_GPU.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/GPU_OPS.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Kapi2/k/kapi/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/License.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/RootBeer.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/antlr-3.1.3.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/commons-collections-3.2.1.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/jasminclasses-2.5.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/javacl-1.0-beta-6-shaded.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/jcublas-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/jcuda-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/jcufft-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/jcurand-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/jcusparse-0.4.0RC2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/junit-4.9b2.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/libJCublas-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/libJCudaDriver-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/libJCudaRuntime-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/libJCufft-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/libJCurand-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/libJCusparse-linux-x86_64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/pack.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/polyglotclasses-1.3.5.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/sootclasses-2.5.0.jar" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/k/kapi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/k/kapi/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,6 +84,10 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
+    <state x="478" y="234" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog" timestamp="1585320754185">
+      <screen x="42" y="22" width="1398" height="878" />
+    </state>
+    <state x="478" y="234" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog/42.22.1398.878@42.22.1398.878" timestamp="1585320754185" />
     <state x="598" y="223" key="#com.intellij.ide.util.MemberChooser" timestamp="1579816908425">
       <screen x="44" y="22" width="1396" height="878" />
     </state>
@@ -168,28 +122,28 @@
       <screen x="44" y="22" width="1396" height="878" />
     </state>
     <state x="504" y="183" key="DetectedRootsChooserDialog/44.22.1396.878@44.22.1396.878" timestamp="1579818951222" />
-    <state width="1358" height="258" key="GridCell.Tab.0.bottom" timestamp="1585315491822">
+    <state width="1358" height="224" key="GridCell.Tab.0.bottom" timestamp="1585316106697">
       <screen x="42" y="22" width="1398" height="878" />
     </state>
-    <state width="1358" height="258" key="GridCell.Tab.0.bottom/42.22.1398.878@42.22.1398.878" timestamp="1585315491822" />
+    <state width="1358" height="224" key="GridCell.Tab.0.bottom/42.22.1398.878@42.22.1398.878" timestamp="1585316106697" />
     <state width="1355" height="206" key="GridCell.Tab.0.bottom/43.22.1397.878@43.22.1397.878" timestamp="1584897397570" />
     <state width="1354" height="206" key="GridCell.Tab.0.bottom/44.22.1396.878@44.22.1396.878" timestamp="1579872855393" />
-    <state width="1358" height="258" key="GridCell.Tab.0.center" timestamp="1585315491821">
+    <state width="1358" height="224" key="GridCell.Tab.0.center" timestamp="1585316106696">
       <screen x="42" y="22" width="1398" height="878" />
     </state>
-    <state width="1358" height="258" key="GridCell.Tab.0.center/42.22.1398.878@42.22.1398.878" timestamp="1585315491821" />
+    <state width="1358" height="224" key="GridCell.Tab.0.center/42.22.1398.878@42.22.1398.878" timestamp="1585316106696" />
     <state width="1355" height="206" key="GridCell.Tab.0.center/43.22.1397.878@43.22.1397.878" timestamp="1584897397567" />
     <state width="1354" height="206" key="GridCell.Tab.0.center/44.22.1396.878@44.22.1396.878" timestamp="1579872855392" />
-    <state width="1358" height="258" key="GridCell.Tab.0.left" timestamp="1585315491820">
+    <state width="1358" height="224" key="GridCell.Tab.0.left" timestamp="1585316106695">
       <screen x="42" y="22" width="1398" height="878" />
     </state>
-    <state width="1358" height="258" key="GridCell.Tab.0.left/42.22.1398.878@42.22.1398.878" timestamp="1585315491820" />
+    <state width="1358" height="224" key="GridCell.Tab.0.left/42.22.1398.878@42.22.1398.878" timestamp="1585316106695" />
     <state width="1355" height="206" key="GridCell.Tab.0.left/43.22.1397.878@43.22.1397.878" timestamp="1584897397566" />
     <state width="1354" height="206" key="GridCell.Tab.0.left/44.22.1396.878@44.22.1396.878" timestamp="1579872855391" />
-    <state width="1358" height="258" key="GridCell.Tab.0.right" timestamp="1585315491821">
+    <state width="1358" height="224" key="GridCell.Tab.0.right" timestamp="1585316106697">
       <screen x="42" y="22" width="1398" height="878" />
     </state>
-    <state width="1358" height="258" key="GridCell.Tab.0.right/42.22.1398.878@42.22.1398.878" timestamp="1585315491821" />
+    <state width="1358" height="224" key="GridCell.Tab.0.right/42.22.1398.878@42.22.1398.878" timestamp="1585316106697" />
     <state width="1355" height="206" key="GridCell.Tab.0.right/43.22.1397.878@43.22.1397.878" timestamp="1584897397568" />
     <state width="1354" height="206" key="GridCell.Tab.0.right/44.22.1396.878@44.22.1396.878" timestamp="1579872855392" />
     <state width="1355" height="196" key="GridCell.Tab.1.bottom" timestamp="1581329399026">
@@ -212,10 +166,10 @@
     </state>
     <state width="1355" height="196" key="GridCell.Tab.1.right/43.22.1397.878@43.22.1397.878" timestamp="1581329399026" />
     <state width="1354" height="313" key="GridCell.Tab.1.right/44.22.1396.878@44.22.1396.878" timestamp="1579818915437" />
-    <state x="228" y="42" key="SettingsEditor" timestamp="1585315071040">
+    <state x="228" y="42" key="SettingsEditor" timestamp="1585321091592">
       <screen x="42" y="22" width="1398" height="878" />
     </state>
-    <state x="228" y="42" key="SettingsEditor/42.22.1398.878@42.22.1398.878" timestamp="1585315071040" />
+    <state x="228" y="42" key="SettingsEditor/42.22.1398.878@42.22.1398.878" timestamp="1585321091592" />
     <state x="230" y="42" key="SettingsEditor/44.22.1396.878@44.22.1396.878" timestamp="1579819732513" />
     <state x="136" y="84" key="new project wizard" timestamp="1579818562395">
       <screen x="44" y="22" width="1396" height="878" />

@@ -404,15 +404,113 @@ public class Main {
 
     static void test_gpu_stuff() {
 
+
+
+
+        String mprg =
+                "__kernel void matmul(" +
+                "          __global float* C, " +
+                "          __global float* A, " +
+                "          __global float* B, " +
+                "          int wA, int wB)" +
+                "{" +
+                "  " +
+                "   int tx = get_global_id(0);" +
+                "   int ty = get_global_id(1);" +
+                " " +
+                "   // value stores the element that is " +
+                "   // computed by the thread" +
+                "   float value = 0;" +
+                "   for (int k = 0; k < wA; ++k)" +
+                "   {" +
+                "      float elementA = A[ty * wA + k];" +
+                "      float elementB = B[k * wB + tx];" +
+                "      value += elementA * elementB;" +
+                "   }" +
+                " " +
+                "   // Write the matrix to device memory each " +
+                "   // thread writes one element" +
+                "   C[ty * wA + tx] = value;" +
+                "}";
+
+
+
+
+        // default tests
+
+
         String programSource =
-                "__kernel void "+
-                        "sampleKernel(__global const float *a,"+
-                        "             __global const float *b,"+
-                        "             __global float *c)"+
+                "__kernel void sampleKernel(" +
+                        "__global const float *a,"+
+                        "__global const float *b,"+
+                        "__global float *c)"+
                         "{"+
                         "    int gid = get_global_id(0);"+
                         "    c[gid] = a[gid] * b[gid];"+
                         "}";
+
+
+
+        // The platform, device type and device number
+        // that will be used
+        final int platformIndex = 0;
+        final long deviceType = CL_DEVICE_TYPE_ALL;
+        //final int deviceIndex = 0;
+
+
+
+        // Enable exceptions and subsequently omit error checks in this sample
+        CL.setExceptionsEnabled(true);
+
+
+
+        // Obtain the number of platforms
+        int numPlatformsArray[] = new int[1];
+        clGetPlatformIDs(0, null, numPlatformsArray);
+        int numPlatforms = numPlatformsArray[0];
+        // Obtain a platform ID
+        cl_platform_id platforms[] = new cl_platform_id[numPlatforms];
+        clGetPlatformIDs(platforms.length, platforms, null);
+        cl_platform_id platform = platforms[platformIndex];
+
+        // Obtain the number of devices for the platform
+        int numDevicesArray[] = new int[1];
+        clGetDeviceIDs(platform, deviceType, 0, null, numDevicesArray);
+        int numDevices = numDevicesArray[0];
+        System.out.println("num devices: " + numDevices); // 2 for cpu and internal gpu // 3 for external gpu as well..
+        // Obtain a device ID
+        cl_device_id devices[] = new cl_device_id[numDevices];
+        clGetDeviceIDs(platform, deviceType, numDevices, devices, null);
+        final int deviceIndex = devices.length-1;
+        System.out.println("picked index: " + deviceIndex);
+        cl_device_id device = devices[deviceIndex];
+
+
+        // Initialize the context properties
+        cl_context_properties contextProperties = new cl_context_properties();
+        contextProperties.addProperty(CL_CONTEXT_PLATFORM, platform);
+
+        // Create a context for the selected device
+        cl_context context = clCreateContext(
+                contextProperties, 1, new cl_device_id[]{device},
+                null, null, null);
+
+        // Create a command-queue for the selected device
+        cl_command_queue commandQueue =
+                clCreateCommandQueue(context, device, 0, null);
+
+
+
+        // Create the program from the source code
+        cl_program program = clCreateProgramWithSource(context,
+                1, new String[]{ programSource }, null, null);
+
+        // Build the program
+        clBuildProgram(program, 0, null, null, null, null);
+
+        // Create the kernel
+        cl_kernel kernel = clCreateKernel(program, "sampleKernel", null);
+
 
 
 
@@ -430,51 +528,9 @@ public class Main {
         Pointer srcB = Pointer.to(srcArrayB);
         Pointer dst = Pointer.to(dstArray);
 
-        // The platform, device type and device number
-        // that will be used
-        final int platformIndex = 0;
-        final long deviceType = CL_DEVICE_TYPE_ALL;
-        final int deviceIndex = 0;
 
-        // Enable exceptions and subsequently omit error checks in this sample
-        CL.setExceptionsEnabled(true);
-
-        // Obtain the number of platforms
-        int numPlatformsArray[] = new int[1];
-        clGetPlatformIDs(0, null, numPlatformsArray);
-        int numPlatforms = numPlatformsArray[0];
-
-        // Obtain a platform ID
-        cl_platform_id platforms[] = new cl_platform_id[numPlatforms];
-        clGetPlatformIDs(platforms.length, platforms, null);
-        cl_platform_id platform = platforms[platformIndex];
-
-        // Obtain the number of devices for the platform
-        int numDevicesArray[] = new int[1];
-        clGetDeviceIDs(platform, deviceType, 0, null, numDevicesArray);
-        int numDevices = numDevicesArray[0];
-        System.out.println("num devices: " + numDevices); // 2 for cpu and internal gpu // 3 for external gpu as well..
-
-        // Obtain a device ID
-        cl_device_id devices[] = new cl_device_id[numDevices];
-        clGetDeviceIDs(platform, deviceType, numDevices, devices, null);
-        cl_device_id device = devices[deviceIndex];
-
-        // Initialize the context properties
-        cl_context_properties contextProperties = new cl_context_properties();
-        contextProperties.addProperty(CL_CONTEXT_PLATFORM, platform);
-
-        // Create a context for the selected device
-        cl_context context = clCreateContext(
-                contextProperties, 1, new cl_device_id[]{device},
-                null, null, null);
-
-        // Create a command-queue for the selected device
-        cl_command_queue commandQueue =
-                clCreateCommandQueue(context, device, 0, null);
-
-        // Allocate the memory objects for the input- and output data
-        cl_mem memObjects[] = new cl_mem[3];
+        // Allocate the memory objects for the input- and output data                   // inputs to FN sent here!!!
+        cl_mem[] memObjects = new cl_mem[3];
         memObjects[0] = clCreateBuffer(context,
                 CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                 Sizeof.cl_float * n, srcA, null);
@@ -484,16 +540,6 @@ public class Main {
         memObjects[2] = clCreateBuffer(context,
                 CL_MEM_READ_WRITE,
                 Sizeof.cl_float * n, null, null);
-
-        // Create the program from the source code
-        cl_program program = clCreateProgramWithSource(context,
-                1, new String[]{ programSource }, null, null);
-
-        // Build the program
-        clBuildProgram(program, 0, null, null, null, null);
-
-        // Create the kernel
-        cl_kernel kernel = clCreateKernel(program, "sampleKernel", null);
 
         // Set the arguments for the kernel
         clSetKernelArg(kernel, 0,
@@ -515,14 +561,25 @@ public class Main {
         clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
                 n * Sizeof.cl_float, dst, 0, null, null);
 
+
+
+
+
         // Release kernel, program, and memory objects
         clReleaseMemObject(memObjects[0]);
         clReleaseMemObject(memObjects[1]);
         clReleaseMemObject(memObjects[2]);
+
+
         clReleaseKernel(kernel);
         clReleaseProgram(program);
         clReleaseCommandQueue(commandQueue);
         clReleaseContext(context);
+
+
+
+
+
 
         // Verify the result
         boolean passed = true;
@@ -544,6 +601,7 @@ public class Main {
             System.out.println("Result: "+java.util.Arrays.toString(dstArray));
         }
     }
+
 
 
 }
