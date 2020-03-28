@@ -314,11 +314,9 @@ class K_Model {
 
         ArrayList<Float[][][]> layers_grads = new ArrayList<>();
 
-        for (K_Layer.LSTM layer : model) {
+        for (K_Layer.LSTM layer : model)
 
             layers_grads.add(K_Layer.collect_grad(layer));
-
-        }
 
         return layers_grads;
 
@@ -340,11 +338,9 @@ class K_Model {
 
     static void learn_from_grads(ArrayList<K_Layer.LSTM> model, float learning_rate) {
 
-        for (K_Layer.LSTM layer : model) {
+        for (K_Layer.LSTM layer : model)
 
             K_Layer.learn_from_grad(layer, learning_rate);
-
-        }
 
     }
 
@@ -404,7 +400,7 @@ class K_Model {
 
         ArrayList<Float[][][]> layers_grads = new ArrayList<>();
 
-        for (Object layer : model) {
+        for (Object layer : model)
 
             if (layer instanceof K_Layer.Dense)
 
@@ -414,8 +410,6 @@ class K_Model {
 
                 layers_grads.add(K_Layer.collect_grad((K_Layer.LSTM) layer));
 
-        }
-        
         return layers_grads;
 
     }
@@ -465,7 +459,7 @@ class K_Model {
                 K_Layer.LSTM layer_ = (K_Layer.LSTM) layer;
 
                 K_Layer.learn_from_grad(layer_, learning_rate);
-                
+
             }
 
     }
@@ -488,7 +482,7 @@ class K_Model {
 
         ArrayList<K_Tensor> layer_states = new ArrayList<>();
 
-        for (Object layer : model) {
+        for (Object layer : model)
 
             if (layer instanceof K_Layer.Dense)
 
@@ -497,8 +491,6 @@ class K_Model {
             else if (layer instanceof K_Layer.LSTM)
 
                 layer_states.add(((K_Layer.LSTM) layer).state);
-
-        }
 
         return layer_states;
 
@@ -601,8 +593,7 @@ class K_Api{
 
                     }
 
-                }
-                catch (Exception e) { e.printStackTrace(); }
+                } catch (Exception e) { e.printStackTrace(); }
 
         } catch (Exception e) { e.printStackTrace(); return null; }
 
