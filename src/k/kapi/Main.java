@@ -47,11 +47,15 @@ public class Main {
 
         //test_biggest_trainer();
 
+        K_CL.init();
+
+        test_single_thread();
+
         //test_custom();
 
         //test_model_combining();\
 
-        test_gpu_stuff();
+        //test_gpu_stuff();
 
 
 //        Float[][] result = GPU_OPS.matmul(K_Math.zeros(2,3), K_Math.zeros(3,4));
@@ -66,6 +70,23 @@ public class Main {
 
 
     }
+
+    static void test_single_thread() {
+
+        ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(13, 13, 4, 3);
+
+        List<Object> model = K_Api.Generate_Generic_Model(
+
+                new int[]{in_size,hiddens[0],hiddens[1],out_size},
+                new String[]{"dense","lstm","dense"},
+                "elu");
+
+        //Object[] loss_grad = K_Api.loss_and_grad_from_datapoint(model, dataset.get(3));
+
+        Object[] loss_grad = K_Api.loss_and_grad_from_batch(model, K_Utils.batchify(dataset,2).get(0));
+
+    }
+
 
     static void test_custom() {
 
@@ -403,14 +424,24 @@ public class Main {
 
         K_CL.init();
 
-        System.out.println(K_CL.is_gpu_found);
+        System.out.println(K_CL.gpu_enabled);
 
-        Float[][] marr = K_Math.randn(1,2);
-        Float[][] marr2 = K_Math.randn(2,1);
+        Float[][] marr = K_Math.randn(1_000,2_000);
+        Float[][] marr2 = K_Math.randn(2_000,5_000);
 
         Float[][] res = K_CL.matmul(marr, marr2);
 
         System.out.println(res);
+
+        Float[][] res_valid = K_Math.matmul(marr,marr2);
+
+        if (K_Math.sum(res) == K_Math.sum(res_valid)) {
+
+            System.out.println("Validation passed.");
+
+        } else {
+            System.out.println("Valid faild." + K_Math.sum(res) + " " + K_Math.sum(res_valid));
+        }
 
     }
 

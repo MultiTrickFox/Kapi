@@ -181,27 +181,35 @@ class K_Math {
 
     static Float[][] matmul(Float[][] a, Float[][] b) {
 
-        int hm_rows1 = a.length;
-        int hm_cols1 = a[0].length;
-        int hm_rows2 = b.length;
-        int hm_cols2 = b[0].length;
-        Float[][] out = new Float[hm_rows1][hm_cols2];
+        if (K_CL.gpu_enabled)
 
-        assert hm_cols1 == hm_rows2;
+            return K_CL.matmul(a,b);
 
-        Float[] row, row_a;
+        else {
 
-        for (int i = 0; i < hm_rows1; i++) {
-            row = out[i];
-            row_a = a[i];
-            for (int j = 0; j < hm_cols2; j++) {
-                row[j] = 0.0f;
-                for (int k = 0; k < hm_cols1; k++)
-                    row[j] += row_a[k] * b[k][j];
+            int hm_rows1 = a.length;
+            int hm_cols1 = a[0].length;
+            int hm_rows2 = b.length;
+            int hm_cols2 = b[0].length;
+            Float[][] out = new Float[hm_rows1][hm_cols2];
+
+            assert hm_cols1 == hm_rows2;
+
+            Float[] row, row_a;
+
+            for (int i = 0; i < hm_rows1; i++) {
+                row = out[i];
+                row_a = a[i];
+                for (int j = 0; j < hm_cols2; j++) {
+                    row[j] = 0.0f;
+                    for (int k = 0; k < hm_cols1; k++)
+                        row[j] += row_a[k] * b[k][j];
+                }
             }
-        }
 
-        return out;
+            return out;
+
+        }
 
     }
 

@@ -21,7 +21,9 @@ class K_CL {
     static HashMap<String,cl_program> programs;
     static HashMap<String,cl_kernel> kernels;
 
-    static boolean is_gpu_found;
+    static boolean gpu_enabled;
+
+    private final static Object lock = new Object();
 
 
     static void init() {
@@ -62,15 +64,15 @@ class K_CL {
 
             case 0:
                 System.out.println("K_CL: device_index {0} - cpu will NOT be used.");
-                is_gpu_found = false;
+                gpu_enabled = false;
                 break;
             case 1:
                 System.out.println("K_CL: device_index {1} - internal gpu will be used.");
-                is_gpu_found = true;
+                gpu_enabled = true;
                 break;
             default:
                 System.out.println("K_CL: device_index {" + deviceIndex + "} - external gpu will be used.");
-                is_gpu_found = true;
+                gpu_enabled = true;
                                                                             // todo: show extra details,names,etc here.
         }
 
@@ -128,92 +130,96 @@ class K_CL {
 
     static Float[][] matmul(Float[][] A, Float[][] B) {
 
-        cl_kernel kernel = kernels.get("matmul");
+        synchronized (lock) {
 
-        float[] a = new float[K_Math.size(A,0)*K_Math.size(A,1)];
-        float[] b = new float[K_Math.size(B,0)*K_Math.size(B,1)];
-        float[] c = new float[A.length*B[0].length];
+            cl_kernel kernel = kernels.get("matmul");
 
-        int ctr;
+            float[] a = new float[K_Math.size(A, 0) * K_Math.size(A, 1)];
+            float[] b = new float[K_Math.size(B, 0) * K_Math.size(B, 1)];
+            float[] c = new float[A.length * B[0].length];
 
-        ctr = -1;
-        for (Float f : K_Math.matrix2vector(A)) {
-            ctr++;
-            a[ctr] = f;
+            int ctr;
+
+            ctr = -1;
+            for (Float f : K_Math.matrix2vector(A)) {
+                ctr++;
+                a[ctr] = f;
+            }
+
+            ctr = -1;
+            for (Float f : K_Math.matrix2vector(B)) {
+                ctr++;
+                b[ctr] = f;
+            }
+
+            float[] args = new float[]{A.length, A[0].length, B.length, B[0].length};
+
+            Pointer srcA = Pointer.to(a);
+            Pointer srcB = Pointer.to(b);
+            Pointer dst = Pointer.to(c);
+            Pointer ext = Pointer.to(args);
+
+            // Allocate the memory objects for the input- and output data
+            cl_mem[] memObjects = new cl_mem[4];
+            memObjects[0] = clCreateBuffer(context,
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    Sizeof.cl_float * a.length, srcA, null);
+            memObjects[1] = clCreateBuffer(context,
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    Sizeof.cl_float * b.length, srcB, null);
+            memObjects[2] = clCreateBuffer(context,
+                    CL_MEM_READ_WRITE,
+                    Sizeof.cl_float * c.length, null, null);
+            memObjects[3] = clCreateBuffer(context,
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    Sizeof.cl_float * args.length, ext, null);
+
+            // Set the arguments for the kernel
+            clSetKernelArg(kernel, 0,
+                    Sizeof.cl_mem, Pointer.to(memObjects[0]));
+            clSetKernelArg(kernel, 1,
+                    Sizeof.cl_mem, Pointer.to(memObjects[1]));
+            clSetKernelArg(kernel, 2,
+                    Sizeof.cl_mem, Pointer.to(memObjects[2]));
+            clSetKernelArg(kernel, 3,
+                    Sizeof.cl_mem, Pointer.to(memObjects[3]));
+
+            // Set the work-item dimensions
+            long[] global_work_size = new long[]{c.length};
+            long[] local_work_size = new long[]{1};
+
+            // Execute the kernel
+            clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                    global_work_size, local_work_size, 0, null, null);
+
+            // Read the output data
+            clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
+                    c.length * Sizeof.cl_float, dst, 0, null, null);
+
+            // Release memory
+
+            clReleaseMemObject(memObjects[0]);
+            clReleaseMemObject(memObjects[1]);
+            clReleaseMemObject(memObjects[2]);
+            clReleaseMemObject(memObjects[3]);
+
+            Float[] C = new Float[c.length];
+
+            for (float f : c) {
+
+                System.out.println(f);
+
+            }
+
+            ctr = -1;
+            for (float f : c) {
+                ctr++;
+                C[ctr] = f;
+            }
+
+            return K_Math.vector2matrix(C, A.length, B[0].length);
+
         }
-
-        ctr = -1;
-        for (Float f : K_Math.matrix2vector(B)) {
-            ctr++;
-            b[ctr] = f;
-        }
-
-        float[] args = new float[]{A.length,A[0].length,B.length,B[0].length};
-
-        Pointer srcA = Pointer.to(a);
-        Pointer srcB = Pointer.to(b);
-        Pointer dst = Pointer.to(c);
-        Pointer ext = Pointer.to(args);
-
-        // Allocate the memory objects for the input- and output data
-        cl_mem[] memObjects = new cl_mem[4];
-        memObjects[0] = clCreateBuffer(context,
-                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                Sizeof.cl_float * a.length, srcA, null);
-        memObjects[1] = clCreateBuffer(context,
-                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                Sizeof.cl_float * b.length, srcB, null);
-        memObjects[2] = clCreateBuffer(context,
-                CL_MEM_READ_WRITE,
-                Sizeof.cl_float * c.length, null, null);
-        memObjects[3] = clCreateBuffer(context,
-                CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                Sizeof.cl_float * args.length, ext, null);
-
-        // Set the arguments for the kernel
-        clSetKernelArg(kernel, 0,
-                Sizeof.cl_mem, Pointer.to(memObjects[0]));
-        clSetKernelArg(kernel, 1,
-                Sizeof.cl_mem, Pointer.to(memObjects[1]));
-        clSetKernelArg(kernel, 2,
-                Sizeof.cl_mem, Pointer.to(memObjects[2]));
-        clSetKernelArg(kernel, 3,
-                Sizeof.cl_mem, Pointer.to(memObjects[3]));
-
-        // Set the work-item dimensions
-        long[] global_work_size = new long[]{c.length};
-        long[] local_work_size = new long[]{1};
-
-        // Execute the kernel
-        clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
-                global_work_size, local_work_size, 0, null, null);
-
-        // Read the output data
-        clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
-                c.length * Sizeof.cl_float, dst, 0, null, null);
-
-        // Release memory
-
-        clReleaseMemObject(memObjects[0]);
-        clReleaseMemObject(memObjects[1]);
-        clReleaseMemObject(memObjects[2]);
-        clReleaseMemObject(memObjects[3]);
-
-        Float[] C = new Float[c.length];
-
-        for (float f : c) { // TODO : why nans here??
-
-            System.out.println(f);
-
-        }
-
-        ctr = -1;
-        for (float f : c) {
-            ctr++;
-            C[ctr] = f;
-        }
-
-        return K_Math.vector2matrix(C,A.length,B[0].length);
 
     }
 
