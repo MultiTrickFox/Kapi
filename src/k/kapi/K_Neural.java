@@ -949,6 +949,14 @@ class K_Utils {
 
     }
 
+    static ArrayList<ArrayList<ArrayList<Float[][]>>> shuffle2(ArrayList<ArrayList<ArrayList<Float[][]>>> items) {
+
+        Collections.shuffle(items);
+
+        return items;
+
+    }
+
     static ArrayList<ArrayList<ArrayList<Float[][]>>> batchify(ArrayList<ArrayList<Float[][]>> dataset, int batch_size) {
 
         ArrayList<ArrayList<ArrayList<Float[][]>>> batches = new ArrayList<>();

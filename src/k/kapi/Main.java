@@ -4,9 +4,6 @@ package k.kapi;
 //import RootBeer.rootbeer.runtime.Rootbeer;
 
 
-// todo: these import to kmath
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,9 +46,11 @@ public class Main {
 
         K_CL.init();
 
-        test_single_thread();
+        //test_threading_gpu();
 
-        //test_custom();
+        test_custom();
+
+
 
         //test_model_combining();\
 
@@ -64,14 +63,14 @@ public class Main {
 
 
 
-
+        System.out.println("End..");
 
 
 
 
     }
 
-    static void test_single_thread() {
+    static void test_threading_gpu() {
 
         ArrayList<ArrayList<Float[][]>> dataset = create_fake_data(13, 13, 4, 3);
 
@@ -90,7 +89,7 @@ public class Main {
 
     static void test_custom() {
 
-        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(13, 13, 4, 3);
+        ArrayList<ArrayList<ArrayList<Float[][]>>> dataset = create_fake_data2(13, 13, 10, 3);
 
 //                K_Dlc.Encoder_Decoder encdec = new K_Dlc.Encoder_Decoder(
 //                    new int[]{13,3,2,13},
@@ -109,11 +108,11 @@ public class Main {
         //System.out.println(results);
 
 
-        float loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+        float loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 5).get(0), learning_rate);
 
         System.out.println(loss);
 
-        loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(dataset, 2).get(0), learning_rate);
+        loss = K_Dlc.train_on_batch(encdec, K_Utils.batchify2(K_Utils.shuffle2(dataset), 5).get(0), learning_rate);
 
         System.out.println(loss);
 
@@ -429,7 +428,7 @@ public class Main {
         Float[][] marr = K_Math.randn(1_000,2_000);
         Float[][] marr2 = K_Math.randn(2_000,5_000);
 
-        Float[][] res = K_CL.matmul(marr, marr2);
+        Float[][] res = K_CL.OPS.matmul(marr, marr2);
 
         System.out.println(res);
 

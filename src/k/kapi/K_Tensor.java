@@ -659,9 +659,7 @@ class K_Tensor {
             row1 = parent_grad[i];
             row2 = tensor.matrix[i];
             for (int j = 0; j < size_p1[1]; j++)
-                row1[j] = row2[j] >= 0 ? 1 : row2[j] +1;
-
-                //row1[j] = row2[j] >= 0 ? row2[j] : (float) Math.exp(row2[j]) -1;
+                row1[j] = row2[j] >= 0 ? 1 : (float) Math.exp(row2[j]);
 
         }
 
@@ -683,38 +681,38 @@ class K_Tensor {
 
     } static K_Tensor mean_square(K_Tensor t_out, Float[][] t_lbl) { return mean_square(t_lbl, t_out); }
 
-//    static K_tensor softmax(K_tensor t1) { // stable softmax ; x - np.max(x) first. // TODO: open up softmax & cross entropy
-//
-//        K_tensor exp = exp(t1);
-//
-//        int[] size_t1 = K_Math.size(t1.matrix);
-//        K_tensor sum_exp = constants(size_t1[0], size_t1[1], K_Math.sum(t1.matrix));
-//
-//        define_as_child(sum_exp, t1);
-//
-//        sum_exp.parent_grads.add(K_Math.ones(size_t1[0], size_t1[1]));
-//
-//        return div(exp, sum_exp);
-//
-//    }
-//
-//    static K_tensor cross_entropy(K_tensor t_lbl, K_tensor t_out) {
-//
-//        return mul(-1.0, mul(t_lbl, log(t_out)));
-//
-//    }
-//
-//    static K_tensor cross_entropy(Float[][] t_lbl, K_tensor t_out) {
-//
-//        return mul(-1.0, mul(t_lbl, log(t_out)));
-//
-//    }
-//
-//    static K_tensor softmax_cross_entropy(K_tensor t_lbl, K_tensor t_out) {
-//
-//        return cross_entropy(t_lbl, softmax(t_out));
-//
-//    }
+    static K_Tensor softmax(K_Tensor t1) {
+
+        K_Tensor exp = exp(t1);
+
+        int[] size_t1 = K_Math.size(t1.matrix);
+        K_Tensor sum_exp = constants(size_t1[0], size_t1[1], K_Math.sum(t1.matrix));
+
+        define_as_child(sum_exp, t1);
+
+        sum_exp.parent_grads.add(K_Math.ones(size_t1[0], size_t1[1]));
+
+        return div(exp, sum_exp);                                                   // TODO : TEST IF THESE ALL WORK
+
+    }
+
+    static K_Tensor cross_entropy(K_Tensor t_lbl, K_Tensor t_out) {
+
+        return mul(-1.0f, mul(t_lbl, log(t_out)));
+
+    }
+
+    static K_Tensor cross_entropy(Float[][] t_lbl, K_Tensor t_out) {
+
+        return mul(-1.0f, mul(t_lbl, log(t_out)));
+
+    }
+
+    static K_Tensor softmax_cross_entropy(K_Tensor t_lbl, K_Tensor t_out) {
+
+        return cross_entropy(t_lbl, softmax(t_out));
+
+    }
 
 
 }

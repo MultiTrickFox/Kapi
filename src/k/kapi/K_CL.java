@@ -84,7 +84,7 @@ class K_CL {
         // for matmul
 
         // Create the program from the source code
-        cl_program program_matmul = clCreateProgramWithSource(context,1, new String[]{ K_Kernels.matmul }, null, null);
+        cl_program program_matmul = clCreateProgramWithSource(context,1, new String[]{ Kernels.matmul }, null, null);
         // Build the program
         clBuildProgram(program_matmul, 0, null, null, null, null);
         programs.put("matmul",program_matmul);
@@ -92,23 +92,6 @@ class K_CL {
         cl_kernel kernel_matmul = clCreateKernel(program_matmul, "matmul", null);
         kernels.put("matmul",kernel_matmul);
 
-//        // Create the program from the source code
-//        cl_program program_matmul_bwA = clCreateProgramWithSource(context,1, new String[]{ K_Kernels.matmul_bwA }, null, null);
-//        // Build the program
-//        clBuildProgram(program_matmul_bwA, 0, null, null, null, null);
-//        programs.put("matmul_bwA",program_matmul_bwA);
-//        // Create the kernel
-//        cl_kernel kernel_matmul_bwA = clCreateKernel(program_matmul_bwA, "matmul_bwA", null);
-//        kernels.put("matmul_bwA",kernel_matmul_bwA);
-//
-//        // Create the program from the source code
-//        cl_program program_matmul_bwB = clCreateProgramWithSource(context,1, new String[]{ K_Kernels.matmul_bwB }, null, null);
-//        // Build the program
-//        clBuildProgram(program_matmul_bwB, 0, null, null, null, null);
-//        programs.put("matmul_bwB",program_matmul_bwB);
-//        // Create the kernel
-//        cl_kernel kernel_matmul_bwB = clCreateKernel(program_matmul_bwB, "matmul_bwB", null);
-//        kernels.put("matmul_bwB",kernel_matmul_bwB);
 
     }
 
@@ -128,11 +111,14 @@ class K_CL {
     }
 
 
-    static Float[][] matmul(Float[][] A, Float[][] B) {
+    static class OPS {
 
-        synchronized (lock) {
 
-            cl_kernel kernel = kernels.get("matmul");
+        static Float[][] matmul(Float[][] A, Float[][] B) {
+
+            cl_kernel kernel = clCreateKernel(programs.get("matmul"), "matmul", null);
+
+            // cl_kernel kernel = kernels.get("matmul"); // TODO: find how to make every thread use the same kernel OR is it possible?
 
             float[] a = new float[K_Math.size(A, 0) * K_Math.size(A, 1)];
             float[] b = new float[K_Math.size(B, 0) * K_Math.size(B, 1)];
@@ -141,7 +127,7 @@ class K_CL {
             int ctr;
 
             ctr = -1;
-            for (Float f : K_Math.matrix2vector(A)) {
+            for (Float f : K_Math.matrix2vector(A)) { // TODO : just use your own float[][] matrix2vector here
                 ctr++;
                 a[ctr] = f;
             }
@@ -174,73 +160,69 @@ class K_CL {
                     CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                     Sizeof.cl_float * args.length, ext, null);
 
-            // Set the arguments for the kernel
-            clSetKernelArg(kernel, 0,
-                    Sizeof.cl_mem, Pointer.to(memObjects[0]));
-            clSetKernelArg(kernel, 1,
-                    Sizeof.cl_mem, Pointer.to(memObjects[1]));
-            clSetKernelArg(kernel, 2,
-                    Sizeof.cl_mem, Pointer.to(memObjects[2]));
-            clSetKernelArg(kernel, 3,
-                    Sizeof.cl_mem, Pointer.to(memObjects[3]));
 
-            // Set the work-item dimensions
-            long[] global_work_size = new long[]{c.length};
-            long[] local_work_size = new long[]{1};
 
-            // Execute the kernel
-            clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
-                    global_work_size, local_work_size, 0, null, null);
+            //synchronized (lock) {
 
-            // Read the output data
-            clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
-                    c.length * Sizeof.cl_float, dst, 0, null, null);
+                // Set the arguments for the kernel
+                clSetKernelArg(kernel, 0,
+                        Sizeof.cl_mem, Pointer.to(memObjects[0]));
+                clSetKernelArg(kernel, 1,
+                        Sizeof.cl_mem, Pointer.to(memObjects[1]));
+                clSetKernelArg(kernel, 2,
+                        Sizeof.cl_mem, Pointer.to(memObjects[2]));
+                clSetKernelArg(kernel, 3,
+                        Sizeof.cl_mem, Pointer.to(memObjects[3]));
 
-            // Release memory
+                // Set the work-item dimensions
+                long[] global_work_size = new long[]{c.length};
+                long[] local_work_size = new long[]{1};
 
-            clReleaseMemObject(memObjects[0]);
-            clReleaseMemObject(memObjects[1]);
-            clReleaseMemObject(memObjects[2]);
-            clReleaseMemObject(memObjects[3]);
+                // Execute the kernel
+                clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                        global_work_size, local_work_size, 0, null, null);
 
-            Float[] C = new Float[c.length];
+                // Read the output data
+                clEnqueueReadBuffer(commandQueue, memObjects[2], CL_TRUE, 0,
+                        c.length * Sizeof.cl_float, dst, 0, null, null);
 
-            for (float f : c) {
+                // Release memory
 
-                System.out.println(f);
+                clReleaseMemObject(memObjects[0]);
+                clReleaseMemObject(memObjects[1]);
+                clReleaseMemObject(memObjects[2]);
+                clReleaseMemObject(memObjects[3]);
 
-            }
+                Float[] C = new Float[c.length];
 
-            ctr = -1;
-            for (float f : c) {
-                ctr++;
-                C[ctr] = f;
-            }
+//                for (float f : c) { // TODO : remove me.
+//
+//                    System.out.println(f);
+//
+//                }
 
-            return K_Math.vector2matrix(C, A.length, B[0].length);
+                ctr = -1;
+                for (float f : c) {
+                    ctr++;
+                    C[ctr] = f;
+                }
+
+                clReleaseKernel(kernel);
+
+                return K_Math.vector2matrix(C, A.length, B[0].length); // TODO : just use your own float[][] vector2matrix here
+
+            //}
 
         }
 
-    }
-
-
-    static void matmul_bwA() {
-
-
-
-    }
-
-    static void matmul_bwB() {
-
-
 
     }
 
 
-    private static class K_Kernels {
+    private static class Kernels {
 
 
-        private static String matmul = 
+        static String matmul =
                 "__kernel void matmul(" +
                         "" +
                         "__global const float *a," +

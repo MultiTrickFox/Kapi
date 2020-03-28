@@ -183,7 +183,7 @@ class K_Math {
 
         if (K_CL.gpu_enabled)
 
-            return K_CL.matmul(a,b);
+            return K_CL.OPS.matmul(a,b);
 
         else {
 
