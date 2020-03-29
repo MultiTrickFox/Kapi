@@ -50,6 +50,8 @@ public class Main {
 
         test_custom();
 
+        //test_gpu_math();
+
 
 
         //test_model_combining();\
@@ -69,6 +71,22 @@ public class Main {
 
 
     }
+
+
+    static void test_gpu_math() {
+
+        K_Math m = K_Math.instance;
+
+        Float[][] mat1 = m.ones(2,2);
+        Float[][] mat2 = m.ones(2,2);
+
+        Float[][] mat3 = K_Math.add(mat1,mat2);
+
+
+        System.out.println("done..");
+
+    }
+
 
     static void test_threading_gpu() {
 
@@ -330,8 +348,8 @@ public class Main {
 
 
 //        // update weights.
-        t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul_scalar(t_w1.grad, 0.01f));
-        t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul_scalar(t_w2.grad, 0.01f));
+        t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul(t_w1.grad, 0.01f));
+        t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul(t_w2.grad, 0.01f));
 //        K_Tensor.empty_grads();
 
         for (int ep = 0; ep < hm_epochs; ep++) {
@@ -344,8 +362,8 @@ public class Main {
 
             loss = K_Tensor.fill_grads(node_loss);
             System.out.println("Ep " + ep + " Loss: " + loss + ", grads: " + t_w1.grad[0][0] + " " + t_w2.grad[0][0]);
-            t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul_scalar(t_w1.grad, 0.01f));
-            t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul_scalar(t_w2.grad, 0.01f));
+            t_w1.matrix = K_Math.sub(t_w1.matrix, K_Math.mul(t_w1.grad, 0.01f));
+            t_w2.matrix = K_Math.sub(t_w2.matrix, K_Math.mul(t_w2.grad, 0.01f));
 //            K_Tensor.empty_grads();
 
         }

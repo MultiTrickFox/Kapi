@@ -266,7 +266,7 @@ class K_Tensor {
 
     static K_Tensor add(K_Tensor t1, Float s) {
 
-        K_Tensor tensor = new K_Tensor(K_Math.add_scalar(t1.matrix, s));
+        K_Tensor tensor = new K_Tensor(K_Math.add(t1.matrix, s));
 
         define_as_child(tensor, t1);
 
@@ -286,7 +286,7 @@ class K_Tensor {
 
     static K_Tensor sub(Float s, K_Tensor t1) {
 
-        K_Tensor tensor = new K_Tensor(K_Math.sub_scalar(s, t1.matrix));
+        K_Tensor tensor = new K_Tensor(K_Math.sub(s, t1.matrix));
 
         define_as_child(tensor, t1);
 
@@ -300,7 +300,7 @@ class K_Tensor {
 
     static K_Tensor mul(K_Tensor t1, Float s) {
 
-        K_Tensor tensor = new K_Tensor(K_Math.mul_scalar(t1.matrix, s));
+        K_Tensor tensor = new K_Tensor(K_Math.mul(t1.matrix, s));
 
         define_as_child(tensor, t1);
 
@@ -451,7 +451,7 @@ class K_Tensor {
 
                     parent_row = parent_grad[j];
 
-                    outgoing_row[j] = K_Math.vector_sum(K_Math.vector_mul(incoming_row, parent_row));
+                    outgoing_row[j] = K_Math.sum(K_Math.mul(incoming_row, parent_row));
 
                 }
 
@@ -481,7 +481,7 @@ class K_Tensor {
 
                     incoming_row = incoming_grad[j];
 
-                    outgoing_row[j] = K_Math.vector_sum(K_Math.vector_mul(incoming_row, parent_row));
+                    outgoing_row[j] = K_Math.sum(K_Math.mul(incoming_row, parent_row));
 
                 }
 
@@ -561,7 +561,7 @@ class K_Tensor {
 
         define_as_child(tensor, t1);
 
-        tensor.parent_grads.add(K_Math.mul_scalar(pow, K_Math.pow(t1.matrix, pow-1)));
+        tensor.parent_grads.add(K_Math.mul(pow, K_Math.pow(t1.matrix, pow-1)));
 
         return tensor;
 
@@ -585,7 +585,7 @@ class K_Tensor {
 
         define_as_child(tensor, t1);
 
-        tensor.parent_grads.add(K_Math.div_scalar(1, tensor.matrix));
+        tensor.parent_grads.add(K_Math.div(1, tensor.matrix));
 
         return tensor;
 

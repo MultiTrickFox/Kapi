@@ -94,12 +94,16 @@ class K_Math {
 
         return out;
 
-    } static Float[][] constants(int[] sizes, int constant) { return constants(sizes[0], sizes[1], constant); }
+    } static Float[][] constants(int[] sizes, float value) { return constants(sizes[0], sizes[1], value); }
 
 
     // matrix operations
 
     static Float[][] add(Float[][] a, Float[][] b) {
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.add(a,b);
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
@@ -121,6 +125,10 @@ class K_Math {
 
     static Float[][] sub(Float[][] a, Float[][] b) {
 
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.sub(a,b);
+
         int hm_rows = a.length;
         int hm_cols = a[0].length;
         Float[][] out = new Float[hm_rows][hm_cols];
@@ -140,6 +148,10 @@ class K_Math {
     }
 
     static Float[][] mul(Float[][] a, Float[][] b) {
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.mul(a,b);
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
@@ -185,38 +197,50 @@ class K_Math {
 
             return K_CL.OPS.matmul(a,b);
 
-        else {
+        int hm_rows1 = a.length;
+        int hm_cols1 = a[0].length;
+        int hm_rows2 = b.length;
+        int hm_cols2 = b[0].length;
+        Float[][] out = new Float[hm_rows1][hm_cols2];
 
-            int hm_rows1 = a.length;
-            int hm_cols1 = a[0].length;
-            int hm_rows2 = b.length;
-            int hm_cols2 = b[0].length;
-            Float[][] out = new Float[hm_rows1][hm_cols2];
+        assert hm_cols1 == hm_rows2;
 
-            assert hm_cols1 == hm_rows2;
+        Float[] row, row_a;
 
-            Float[] row, row_a;
-
-            for (int i = 0; i < hm_rows1; i++) {
-                row = out[i];
-                row_a = a[i];
-                for (int j = 0; j < hm_cols2; j++) {
-                    row[j] = 0.0f;
-                    for (int k = 0; k < hm_cols1; k++)
-                        row[j] += row_a[k] * b[k][j];
-                }
+        for (int i = 0; i < hm_rows1; i++) {
+            row = out[i];
+            row_a = a[i];
+            for (int j = 0; j < hm_cols2; j++) {
+                row[j] = 0.0f;
+                for (int k = 0; k < hm_cols1; k++)
+                    row[j] += row_a[k] * b[k][j];
             }
-
-            return out;
-
         }
+
+        return out;
+
+    }
+
+    static Float[][] matmul(Float[][] A, Float[] B) {
+
+        return matmul(A, vector2matrix(B, B.length, 1));
+
+    }
+
+    static Float[][] matmul(Float[] A, Float[][] B) {
+
+        return matmul(vector2matrix(A, 1, A.length), B);
 
     }
 
 
     // scalar operations
 
-    static Float[][] mul_scalar(float b, Float[][] a) {
+    static Float[][] mul(float b, Float[][] a) {
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.mul(a,constants(size(a),b));
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
@@ -233,9 +257,9 @@ class K_Math {
 
         return out;
 
-    } static Float[][] mul_scalar(Float[][] a, float b) { return mul_scalar(b, a); }
+    } static Float[][] mul(Float[][] a, float b) { return mul(b, a); }
 
-    static Float[][] div_scalar(float b, Float[][] a) {
+    static Float[][] div(float b, Float[][] a) {
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
@@ -252,9 +276,13 @@ class K_Math {
 
         return out;
 
-    } static Float[][] div_scalar(Float[][] a, float b) { return mul_scalar(1/b, a); }
+    } static Float[][] div(Float[][] a, float b) { return mul(1/b, a); }
 
-    static Float[][] sub_scalar(float b, Float[][] a) {
+    static Float[][] sub(float b, Float[][] a) {
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.sub(constants(size(a),b),a);
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
@@ -273,7 +301,11 @@ class K_Math {
 
     }
 
-    static Float[][] sub_scalar(Float[][] a, float b) {
+    static Float[][] sub(Float[][] a, float b) {
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.sub(a,constants(size(a),b));
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
@@ -292,7 +324,11 @@ class K_Math {
 
     }
 
-    static Float[][] add_scalar(float b, Float[][] a) {
+    static Float[][] add(float b, Float[][] a) {
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.add(a,constants(size(a),b));
 
         int hm_rows = a.length;
         int hm_cols = a[0].length;
@@ -309,7 +345,7 @@ class K_Math {
 
         return out;
 
-    } static Float[][] add_scalar(Float[][] a, float b) { return add_scalar(b, a); }
+    } static Float[][] add(Float[][] a, float b) { return add(b, a); }
 
 
     // helpers
@@ -449,9 +485,13 @@ class K_Math {
 
     // vector operations
 
-    static Float[] vector_mul(Float[] v1, Float[] v2) {
+    static Float[] mul(Float[] v1, Float[] v2) {
 
         assert v1.length == v2.length;
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.mul(v1,v2);
 
         int hm_elements = v1.length;
         Float[] out = new Float[hm_elements];
@@ -463,9 +503,13 @@ class K_Math {
 
     }
 
-    static Float[] vector_add(Float[] v1, Float[] v2) {
+    static Float[] add(Float[] v1, Float[] v2) {
 
         assert v1.length == v2.length;
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.add(v1,v2);
 
         int hm_elements = v1.length;
         Float[] out = new Float[hm_elements];
@@ -477,11 +521,30 @@ class K_Math {
 
     }
 
-    static float vector_sum(Float[] v) {
+    static Float[] sub(Float[] v1, Float[] v2) {
+
+        assert v1.length == v2.length;
+
+        if (K_CL.gpu_enabled)
+
+            return K_CL.OPS.sub(v1,v2);
+
+        int hm_elements = v1.length;
+        Float[] out = new Float[hm_elements];
+
+        for (int i = 0; i < hm_elements; i++)
+            out[i] = v1[i] - v2[i];
+
+        return out;
+
+    }
+
+    static float sum(Float[] v) {
 
         float doubl = 0;
 
-        for (Float d : v) doubl += d;
+        for (Float d : v)
+            doubl += d;
 
         return doubl;
 
@@ -658,7 +721,7 @@ class K_Math {
 
     }
 
-    static Float[][] softmax(Float[][] matrix, int index_begin, int index_end) {
+    static Float[][] partial_softmax(Float[][] matrix, int index_begin, int index_end) {
 
         int hm_rows = matrix.length;
         int hm_cols = matrix[0].length;
