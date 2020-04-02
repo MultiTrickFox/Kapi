@@ -516,6 +516,20 @@ class K_Model {
 
 class K_Api{
 
+    private static int hm_threads = Runtime.getRuntime().availableProcessors();
+
+    static { System.out.println("K_Api thread_count: {" + hm_threads + "}"); }
+
+    static ExecutorService threadpool = Executors.newFixedThreadPool(hm_threads);
+
+    static void change_thread_count(int amount_threads) {
+
+        hm_threads = amount_threads;
+
+        threadpool = Executors.newFixedThreadPool(hm_threads);
+
+    }
+
 
     static Object[] loss_and_grad_from_datapoint(ArrayList<K_Layer.LSTM> model, ArrayList<Float[][]> datapoint) {
 
@@ -796,8 +810,6 @@ class K_Api{
         }
 
     }
-
-    public static ExecutorService threadpool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     static Object[] loss_and_grad_from_batch(List<Object> model, ArrayList<ArrayList<Float[][]>> batch) {
 

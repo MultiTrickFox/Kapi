@@ -60,15 +60,15 @@ class K_CL {
         switch(deviceIndex) {
 
             case 0:
-                System.out.println("K_CL device_index: {0} - no gpu available.");
+                System.out.println("K_CL  device_index: {0} - no gpu.");
                 gpu_enabled = false;
                 break;
             case 1:
-                System.out.println("K_CL device_index: {1} - internal gpu will be used.");
+                System.out.println("K_CL  device_index: {1} - internal gpu.");
                 gpu_enabled = true;
                 break;
             default:
-                System.out.println("K_CL device_index: {" + deviceIndex + "} - external gpu will be used.");
+                System.out.println("K_CL  device_index: {" + deviceIndex + "} - external gpu.");
                 gpu_enabled = true;
 
         }
